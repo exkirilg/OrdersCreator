@@ -1,7 +1,9 @@
 using DataAccess;
 using Domain.DataAccess;
+using Domain.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
+using Services;
 using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -36,6 +38,8 @@ builder.Services.AddDbContext<DataContext>(options =>
 });
 
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+builder.Services.AddScoped<IProvidersServices, ProvidersServices>();
 
 var app = builder.Build();
 

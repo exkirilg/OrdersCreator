@@ -1,4 +1,5 @@
-﻿using Domain.DataAccess;
+﻿using Domain.CustomExceptions;
+using Domain.DataAccess;
 using Domain.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
@@ -46,7 +47,15 @@ public abstract class GenericRepository<TEntity> : IGenericRepository<TEntity> w
 
     public async Task<TEntity> GetById(int id)
     {
-        return await _dbSet.FirstAsync(e => e.Id == id);
+        TEntity? entity = await _dbSet.FindAsync(id);
+
+        if (entity is null)
+        {
+            throw new NoEntityFoundByIdException(
+                $"There is no {typeof(TEntity).Name.ToLower()} with id {id}");
+        }
+
+        return entity;
     }
 
     public async Task Insert(TEntity entity)
