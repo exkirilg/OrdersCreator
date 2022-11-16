@@ -40,6 +40,7 @@ builder.Services.AddDbContext<DataContext>(options =>
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 builder.Services.AddScoped<IProvidersServices, ProvidersServices>();
+builder.Services.AddScoped<IOrdersServices, OrdersServices>();
 
 var app = builder.Build();
 

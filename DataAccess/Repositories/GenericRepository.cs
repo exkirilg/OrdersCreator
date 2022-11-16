@@ -45,9 +45,17 @@ public abstract class GenericRepository<TEntity> : IGenericRepository<TEntity> w
         }
     }
 
-    public async Task<TEntity> GetById(int id)
+    public async Task<TEntity> GetById(int id, string includeProperties = "")
     {
-        TEntity? entity = await _dbSet.FindAsync(id);
+        IQueryable<TEntity> query = _dbSet.Where(e => e.Id == id);
+
+        foreach (var includeProperty in includeProperties.Split
+            (new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+        {
+            query = query.Include(includeProperty);
+        }
+
+        TEntity? entity = await query.FirstAsync();
 
         if (entity is null)
         {

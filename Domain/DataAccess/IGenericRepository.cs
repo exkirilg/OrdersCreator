@@ -10,7 +10,7 @@ public interface IGenericRepository<TEntity> where TEntity : Entity
         Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>>? orderBy = null,
         string includeProperties = "");
 
-    Task<TEntity> GetById(int id);
+    Task<TEntity> GetById(int id, string includeProperties = "");
 
     Task Insert(TEntity entity);
 

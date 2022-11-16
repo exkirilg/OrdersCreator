@@ -13,7 +13,7 @@ public class Order : Entity
     public string Number
     {
         get => _number;
-        private set
+        set
         {
             if (value == Number) return;
 
@@ -32,7 +32,7 @@ public class Order : Entity
     public DateTime Date
     {
         get => _date;
-        private set
+        set
         {
             if (value == Date) return;
 
@@ -84,5 +84,40 @@ public class Order : Entity
         Date = date;
         Provider = provider;
         Items = items;
+    }
+
+    public void AddItem(OrderItem item)
+    {
+        _items.Add(item);
+    }
+
+    public void UpdateItem(int itemId, OrderItem item)
+    {
+        OrderItem? currentItem = _items.Find(i => i.Id == itemId);
+
+        if (currentItem is null)
+        {
+            throw new ArgumentException(
+                $"Order does not contain item with id {itemId}",
+                nameof(itemId));
+        }
+
+        currentItem.Name = item.Name;
+        currentItem.Quantity = item.Quantity;
+        currentItem.Unit = item.Unit;
+    }
+
+    public void RemoveItem(int itemId)
+    {
+        OrderItem? currentItem = _items.Find(i => i.Id == itemId);
+
+        if (currentItem is null)
+        {
+            throw new ArgumentException(
+                $"Order does not contain item with id {currentItem}",
+                nameof(currentItem));
+        }
+
+        _items.Remove(currentItem);
     }
 }

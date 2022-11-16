@@ -59,7 +59,7 @@ namespace DataAccess.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int>("OrderId")
+                    b.Property<int?>("OrderId")
                         .HasColumnType("integer");
 
                     b.Property<float>("Quantity")
@@ -73,7 +73,7 @@ namespace DataAccess.Migrations
 
                     b.HasIndex("OrderId");
 
-                    b.ToTable("OrderItem");
+                    b.ToTable("OrdersItems");
                 });
 
             modelBuilder.Entity("Domain.Models.Provider", b =>
@@ -106,13 +106,9 @@ namespace DataAccess.Migrations
 
             modelBuilder.Entity("Domain.Models.OrderItem", b =>
                 {
-                    b.HasOne("Domain.Models.Order", "Order")
+                    b.HasOne("Domain.Models.Order", null)
                         .WithMany("Items")
-                        .HasForeignKey("OrderId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Order");
+                        .HasForeignKey("OrderId");
                 });
 
             modelBuilder.Entity("Domain.Models.Order", b =>

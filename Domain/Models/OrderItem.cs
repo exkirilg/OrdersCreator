@@ -4,32 +4,15 @@ namespace Domain.Models;
 
 public class OrderItem : Entity
 {
-    private Order _order = null!;
     private string _name = string.Empty;
     private float _quantity;
     private string _unit = string.Empty;
 
     [Required]
-    public Order Order
-    {
-        get => _order;
-        set
-        {
-            if (value == Order) return;
-
-            ArgumentNullException.ThrowIfNull(
-                nameof(value),
-                nameof(value));
-
-            _order = value;
-        }
-    }
-
-    [Required]
     public string Name
     {
         get => _name;
-        private set
+        set
         {
             if (value == Name) return;
 
@@ -86,9 +69,8 @@ public class OrderItem : Entity
     {
     }
 
-    public OrderItem(Order order, string name, float quantity, string unit)
+    public OrderItem(string name, float quantity, string unit)
     {
-        Order = order;
         Name = name;
         Quantity = quantity;
         Unit = unit;
