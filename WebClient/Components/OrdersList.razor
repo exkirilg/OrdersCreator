@@ -1,0 +1,128 @@
+﻿@using System.Text;
+@inject HttpClient HttpClient
+
+@if (_orders is null || _providers is null)
+{
+    <div class="d-flex justify-content-center">
+        <div class="spinner-border" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+}
+else
+{
+    <div class="hstack gap-3">
+
+        <form class="hstack gap-2 text-center">
+
+            <label>From</label>
+            <input type="datetime-local" class="form-control shadow-sm" @bind=_from>
+
+            <label>to</label>
+            <input type="datetime-local" class="form-control shadow-sm" @bind=_to>
+
+            <select class="form-select shadow-sm" @bind=_selectedProviderId>
+                <option value="-1" selected>Select provider...</option>
+                @foreach (var provider in _providers)
+                {
+                    <option value="@provider.Id">@provider.Name</option>
+                }
+            </select>
+
+            <button type="button" class="btn btn-outline-secondary shadow-sm" @onclick="GetOrders">
+                Filter
+            </button>
+
+            <button type="button"  class="btn btn-outline-success shadow-sm">
+                New
+            </button>
+
+        </form>
+
+    </div>
+
+    <hr />
+
+    <table class="table table-striped">
+        <thead>
+            <tr class="fw-bold text-uppercase">
+                <td scope="col">Date</td>
+                <td scope="col">Number</td>
+                <td scope="col">Provider</td>
+                <td scope="col" />
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var order in _orders)
+            {
+                <tr>
+                    <td scope="row">@order.Date</td>
+                    <td scope="row">@order.Number</td>
+                    <td scope="row">@order.Provider.Name</td>
+                    <td scope="row">
+                        <div class="hstack gap-2">
+                            <button class="btn btn-outline-warning shadow-sm">
+                                Edit
+                            </button>
+                            <button class="btn btn-outline-danger shadow-sm">
+                                Delete
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private const int _ordersPerPage = 5;
+
+    private int? _ordersNumber;
+    private IEnumerable<Order>? _orders;
+
+    private Provider[]? _providers;
+    private int? _selectedProviderId;
+
+    private DateTime _from = DateTime.UtcNow.Date.AddMonths(-1);
+    private DateTime _to = DateTime.UtcNow.Date.AddDays(1);
+
+    private async Task GetOrders()
+    {
+        StringBuilder strBuilder = new StringBuilder();
+        strBuilder.Append("api/Orders");
+        strBuilder.Append("?");
+        strBuilder.Append($"From={_from.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ss")}Z");
+        strBuilder.Append("&");
+        strBuilder.Append($"To={_to.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ss")}Z");
+        strBuilder.Append("&");
+        strBuilder.Append($"Limit={_ordersPerPage}");
+
+        if (_selectedProviderId is not null && _selectedProviderId != -1)
+        {
+            strBuilder.Append("&");
+            strBuilder.Append($"ProviderId={_selectedProviderId}");
+        }
+
+        Console.WriteLine(strBuilder.ToString());
+
+        var response = await HttpClient.GetFromJsonAsync<GetOrdersResponse>(strBuilder.ToString());
+        
+        if (response is not null)
+        {
+            _ordersNumber = response.OrdersNumber;
+            _orders = response.Orders;
+        }
+    }
+
+    private async Task GetProviders()
+    {
+        _providers = await HttpClient.GetFromJsonAsync<Provider[]>("api/Providers");
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetOrders();
+        await GetProviders();
+    }
+}

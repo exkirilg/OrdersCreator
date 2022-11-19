@@ -7,15 +7,15 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{836BB3B1-DD2
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{D76EFE78-7126-489B-9765-0B67B586ADC5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Domain", "Domain\Domain.csproj", "{732E3C5A-AB06-4116-AE82-11B41F42CF6F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Domain", "Domain\Domain.csproj", "{732E3C5A-AB06-4116-AE82-11B41F42CF6F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataAccess", "DataAccess\DataAccess.csproj", "{53AD2C4B-F833-4EEE-B7F1-D6118CC05E8E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataAccess", "DataAccess\DataAccess.csproj", "{53AD2C4B-F833-4EEE-B7F1-D6118CC05E8E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Services", "Services\Services.csproj", "{27D61840-DA41-4F41-8CDB-6DFD52C419BC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Services", "Services\Services.csproj", "{27D61840-DA41-4F41-8CDB-6DFD52C419BC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Server", "Server\Server.csproj", "{17A3F9E6-01D8-4C43-AF08-0B35C947DBC1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Server", "Server\Server.csproj", "{17A3F9E6-01D8-4C43-AF08-0B35C947DBC1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebClient", "WebClient\WebClient.csproj", "{00B78C76-A39F-4486-98C8-F58A7688131D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebClient", "WebClient\WebClient.csproj", "{00B78C76-A39F-4486-98C8-F58A7688131D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
