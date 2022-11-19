@@ -10,6 +10,11 @@ public class OrdersRepository : GenericRepository<Order>, IOrdersRepository
     {
     }
 
+    public async Task<int> GetOrdersNumber()
+    {
+        return await _dbSet.CountAsync();
+    }
+
     public async Task RemoveItems(IEnumerable<int> itemsIds)
     {
         var itemsDbSet = _context.Set<OrderItem>();

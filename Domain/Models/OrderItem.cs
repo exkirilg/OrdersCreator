@@ -65,7 +65,7 @@ public class OrderItem : Entity
         }
     }
 
-    private OrderItem()
+    public OrderItem()
     {
     }
 

@@ -17,10 +17,12 @@ public abstract class GenericRepository<TEntity> : IGenericRepository<TEntity> w
         _dbSet = context.Set<TEntity>();
     }
 
-    public async Task<IEnumerable<TEntity>> GetAll(
+    public async Task<IEnumerable<TEntity>> Get(
         Expression<Func<TEntity, bool>>? filter = null,
         Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>>? orderBy = null,
-        string includeProperties = "")
+        string includeProperties = "",
+        int? limit = null,
+        int? offset = null)
     {
         IQueryable<TEntity> query = _dbSet;
 
@@ -29,20 +31,28 @@ public abstract class GenericRepository<TEntity> : IGenericRepository<TEntity> w
             query = query.Where(filter);
         }
 
+        if (orderBy is not null)
+        {
+            query = orderBy(query);
+        }
+
+        if (offset is not null)
+        {
+            query.Skip((int) offset);
+        }
+
+        if (limit is not null)
+        {
+            query.Take((int)limit);
+        }
+
         foreach (var includeProperty in includeProperties.Split
             (new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
         {
             query = query.Include(includeProperty);
         }
 
-        if (orderBy is not null)
-        {
-            return await orderBy(query).ToListAsync();
-        }
-        else
-        {
-            return await query.ToListAsync();
-        }
+        return await query.ToListAsync();
     }
 
     public async Task<TEntity> GetById(int id, string includeProperties = "")

@@ -5,7 +5,7 @@ namespace Domain.Services;
 
 public interface IOrdersServices
 {
-    Task<IEnumerable<Order>> GetAll();
+    Task<GetOrdersResponse> Get(GetOrdersRequest request);
     Task<Order> GetById(int id);
     Task Create(NewOrderRequest request);
     Task Update(UpdateOrderRequest request);

@@ -10,7 +10,7 @@ public abstract class Entity : IComparable<Entity>
     public int Id
     {
         get => _id;
-        private set
+        set
         {
             if (value == Id) return;
 

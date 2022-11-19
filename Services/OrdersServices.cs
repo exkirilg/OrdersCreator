@@ -2,6 +2,7 @@
 using Domain.DTO;
 using Domain.Models;
 using Domain.Services;
+using System.Linq.Expressions;
 
 namespace Services;
 
@@ -14,12 +15,37 @@ public class OrdersServices : IOrdersServices
         _unitOfWork = unitOfWork;
     }
 
-    public async Task<IEnumerable<Order>> GetAll()
+    public async Task<GetOrdersResponse> Get(GetOrdersRequest request)
     {
-        return await _unitOfWork.OrdersRepository
-            .GetAll(
-                orderBy: q => q.OrderByDescending(o => o.Date),
-                includeProperties: $"{nameof(Order.Provider)},{nameof(Order.Items)}");
+        var from = request.From ?? DefaultFromForGetRequest();
+        var to = request.To ?? DefaultToForGetRequest();
+        var limit = request.Limit ?? DefaultLimitForGetRequest();
+
+        Expression<Func<Order, bool>> filterExpression;
+
+        if (request.ProviderId is not null)
+        {
+            filterExpression =
+                o => o.Date >= from && o.Date < to
+                    && o.Provider.Id == request.ProviderId;
+        }
+        else
+        {
+            filterExpression =
+                o => o.Date >= from && o.Date < to;
+        }
+
+        var orders = await _unitOfWork.OrdersRepository.Get(
+            filterExpression,
+            q => q.OrderByDescending(o => o.Date),
+            $"{nameof(Order.Provider)},{nameof(Order.Items)}",
+            limit,
+            request.Offset
+        );
+
+        var orderNumber = await _unitOfWork.OrdersRepository.GetOrdersNumber();
+
+        return new GetOrdersResponse(orders, orderNumber);
     }
 
     public async Task<Order> GetById(int id)
@@ -49,6 +75,21 @@ public class OrdersServices : IOrdersServices
     {
         await _unitOfWork.OrdersRepository.Delete(id);
         await _unitOfWork.Save();
+    }
+
+    private int DefaultLimitForGetRequest()
+    {
+        return 10;
+    }
+
+    private DateTime DefaultFromForGetRequest()
+    {
+        return DateTime.UtcNow.Date.AddMonths(-1);
+    }
+
+    private DateTime DefaultToForGetRequest()
+    {
+        return DateTime.UtcNow.Date.AddDays(1);
     }
 
     private async Task<Order> ConvertToOrder(NewOrderRequest request)

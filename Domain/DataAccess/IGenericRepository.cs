@@ -5,10 +5,12 @@ namespace Domain.DataAccess;
 
 public interface IGenericRepository<TEntity> where TEntity : Entity
 {
-    Task<IEnumerable<TEntity>> GetAll(
+    Task<IEnumerable<TEntity>> Get(
         Expression<Func<TEntity, bool>>? filter = null,
         Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>>? orderBy = null,
-        string includeProperties = "");
+        string includeProperties = "",
+        int? limit = null,
+        int? offset = null);
 
     Task<TEntity> GetById(int id, string includeProperties = "");
 

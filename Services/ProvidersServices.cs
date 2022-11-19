@@ -17,7 +17,7 @@ public class ProvidersServices : IProvidersServices
     public async Task<IEnumerable<Provider>> GetAll()
     {
         return await _unitOfWork.ProvidersRepository
-            .GetAll(orderBy: q => q.OrderBy(p => p.Name));
+            .Get(orderBy: q => q.OrderBy(p => p.Name));
     }
 
     public async Task<Provider> GetById(int id)

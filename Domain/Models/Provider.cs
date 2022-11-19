@@ -22,7 +22,7 @@ public class Provider : Entity
         }
     }
 
-    private Provider()
+    public Provider()
     {
     }
 

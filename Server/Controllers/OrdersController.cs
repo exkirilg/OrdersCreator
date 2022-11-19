@@ -24,14 +24,15 @@ public class OrdersController : ControllerBase
     }
 
     /// <summary>
-    /// Returns a list of all orders
+    /// Returns a list of all orders with specified filters
     /// </summary>
+    /// <param name="request"></param>
     /// <returns></returns>
     /// <response code="200"></response>
     [HttpGet]
-    public async Task<IActionResult> GetAll()
+    public async Task<IActionResult> Get([FromQuery] GetOrdersRequest request)
     {
-        return Ok(await _ordersServices.GetAll());
+        return Ok(await _ordersServices.Get(request));
     }
 
     /// <summary>

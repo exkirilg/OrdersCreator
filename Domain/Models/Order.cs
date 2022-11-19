@@ -74,7 +74,7 @@ public class Order : Entity
         }
     }
 
-    private Order()
+    public Order()
     {
     }
 
