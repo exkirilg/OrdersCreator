@@ -43,7 +43,7 @@ public class OrdersServices : IOrdersServices
             request.Offset
         );
 
-        var orderNumber = await _unitOfWork.OrdersRepository.GetOrdersNumber();
+        var orderNumber = await _unitOfWork.OrdersRepository.GetOrdersNumber(filterExpression);
 
         return new GetOrdersResponse(orders, orderNumber);
     }
