@@ -1,4 +1,5 @@
 ﻿@using System.Text;
+@using System.Globalization;
 @inject HttpClient HttpClient
 
 @if (_orders is null || _providers is null)
@@ -11,17 +12,29 @@
 }
 else
 {
-    <div class="hstack gap-3">
+    <div class="row">
+        
+        <div class="col">
 
-        <form class="hstack gap-2 text-center">
+            <div class="hstack">
 
-            <label>From</label>
-            <input type="datetime-local" class="form-control shadow-sm" @bind=_from>
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <label class="input-group-text bg-transparent border-0">From</label>
+                    </div>
+                    <input type="date" class="form-control shadow-sm" @bind=_from>
+                </div>
 
-            <label>to</label>
-            <input type="datetime-local" class="form-control shadow-sm" @bind=_to>
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <label class="input-group-text bg-transparent border-0">to</label>
+                    </div>
+                    <input type="date" class="form-control shadow-sm" @bind=_to>
+                </div>
 
-            <select class="form-select shadow-sm" @bind=_selectedProviderId>
+            </div>
+
+            <select class="form-select shadow-sm mt-2" @bind=_selectedProviderId>
                 <option value="-1" selected>Select provider...</option>
                 @foreach (var provider in _providers)
                 {
@@ -29,21 +42,21 @@ else
                 }
             </select>
 
-            <button type="button" class="btn btn-outline-secondary shadow-sm" @onclick="GetOrders">
+        </div>
+
+        <div class="col">
+            <button type="button" class="btn btn-secondary shadow-sm" @onclick="GetOrders">
                 Filter
             </button>
 
-            <button type="button"  class="btn btn-outline-success shadow-sm">
+            <button type="button" class="btn btn-success shadow-sm">
                 New
             </button>
-
-        </form>
+        </div>
 
     </div>
 
-    <hr />
-
-    <table class="table table-striped">
+    <table class="table table-striped mt-3">
         <thead>
             <tr class="fw-bold text-uppercase">
                 <td scope="col">Date</td>
@@ -56,15 +69,15 @@ else
             @foreach (var order in _orders)
             {
                 <tr>
-                    <td scope="row">@order.Date</td>
+                    <td scope="row">@order.Date.ToString(CultureInfo.CreateSpecificCulture("").DateTimeFormat.ShortDatePattern)</td>
                     <td scope="row">@order.Number</td>
                     <td scope="row">@order.Provider.Name</td>
                     <td scope="row">
                         <div class="hstack gap-2">
-                            <button class="btn btn-outline-warning shadow-sm">
+                            <button class="btn btn-warning shadow-sm">
                                 Edit
                             </button>
-                            <button class="btn btn-outline-danger shadow-sm">
+                            <button class="btn btn-danger shadow-sm">
                                 Delete
                             </button>
                         </div>
@@ -73,13 +86,67 @@ else
             }
         </tbody>
     </table>
+
+    @if (_numberOfPages > 1)
+    {
+        <nav>
+            <ul class="pagination justify-content-center">
+                
+                <li class="page-item">
+                    <button
+                        class="page-link"
+                        disabled="@(_currentPage == 1)"
+                        @onclick="() => SetPage(_currentPage - 1)">
+                        Previous
+                    </button>
+                </li>
+
+                @for (int i = _currentPage - 1; i <= _currentPage + 1 && i <= _numberOfPages; i++)
+                {
+                    @if (i == 0) continue;
+
+                    int pageNumber = i;
+
+                    @if (i == _currentPage)
+                    {
+                        <li class="page-item active">
+                            <button class="page-link" disabled>
+                                @i
+                            </button>
+                        </li>
+                    }
+                    else
+                    {
+                        <li class="page-item">
+                            <button
+                                class="page-link"
+                                @onclick="() => SetPage(pageNumber)">
+                                @i
+                            </button>
+                        </li>
+                    }
+                }
+
+                <li class="page-item">
+                    <button
+                        class="page-link"
+                        disabled="@(_currentPage == _numberOfPages)"
+                        @onclick="() => SetPage(_currentPage + 1)">
+                        Next
+                    </button>
+                </li>
+            </ul>
+        </nav>
+    }
 }
 
 @code {
-    private const int _ordersPerPage = 5;
+    private const int _ordersPerPage = 7;
 
-    private int? _ordersNumber;
     private IEnumerable<Order>? _orders;
+
+    private int _numberOfPages = 1;
+    private int _currentPage = 1;
 
     private Provider[]? _providers;
     private int? _selectedProviderId;
@@ -94,9 +161,11 @@ else
         strBuilder.Append("?");
         strBuilder.Append($"From={_from.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ss")}Z");
         strBuilder.Append("&");
-        strBuilder.Append($"To={_to.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ss")}Z");
+        strBuilder.Append($"To={_to.AddDays(1).ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ss")}Z");
         strBuilder.Append("&");
         strBuilder.Append($"Limit={_ordersPerPage}");
+        strBuilder.Append("&");
+        strBuilder.Append($"Offset={_ordersPerPage * (_currentPage - 1)}");
 
         if (_selectedProviderId is not null && _selectedProviderId != -1)
         {
@@ -104,13 +173,11 @@ else
             strBuilder.Append($"ProviderId={_selectedProviderId}");
         }
 
-        Console.WriteLine(strBuilder.ToString());
-
         var response = await HttpClient.GetFromJsonAsync<GetOrdersResponse>(strBuilder.ToString());
-        
+
         if (response is not null)
         {
-            _ordersNumber = response.OrdersNumber;
+            _numberOfPages = (int)Math.Ceiling((double)response.OrdersNumber / _ordersPerPage);
             _orders = response.Orders;
         }
     }
@@ -124,5 +191,11 @@ else
     {
         await GetOrders();
         await GetProviders();
+    }
+
+    private async Task SetPage(int page)
+    {
+        _currentPage = page;
+        await GetOrders();
     }
 }
