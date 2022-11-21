@@ -38,12 +38,12 @@ public abstract class GenericRepository<TEntity> : IGenericRepository<TEntity> w
 
         if (offset is not null)
         {
-            query.Skip((int) offset);
+            query = query.Skip((int) offset);
         }
 
         if (limit is not null)
         {
-            query.Take((int)limit);
+            query = query.Take((int)limit);
         }
 
         foreach (var includeProperty in includeProperties.Split
