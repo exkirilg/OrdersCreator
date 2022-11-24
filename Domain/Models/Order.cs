@@ -64,7 +64,7 @@ public class Order : Entity
     public IReadOnlyCollection<OrderItem> Items
     {
         get => _items;
-        private set
+        set
         {
             ArgumentNullException.ThrowIfNull(
                 nameof(value),

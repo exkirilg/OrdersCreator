@@ -12,6 +12,7 @@
 }
 else
 {
+    <!-- Controls -->
     <div class="row">
         
         <div class="col">
@@ -49,13 +50,14 @@ else
                 Filter
             </button>
 
-            <button type="button" class="btn btn-success shadow-sm">
+            <button type="button" class="btn btn-success shadow-sm" @onclick="() => ShowOrderEdit(new Order(), true)">
                 New
             </button>
         </div>
 
     </div>
 
+    <!-- Data -->
     <table class="table table-striped mt-3">
         <thead>
             <tr class="fw-bold text-uppercase">
@@ -74,10 +76,10 @@ else
                     <td scope="row">@order.Provider.Name</td>
                     <td scope="row">
                         <div class="hstack gap-2">
-                            <button class="btn btn-warning shadow-sm">
+                            <button class="btn btn-warning shadow-sm" @onclick="() => ShowOrderEdit(order)">
                                 Edit
                             </button>
-                            <button class="btn btn-danger shadow-sm">
+                            <button class="btn btn-danger shadow-sm" @onclick="() => ShowOrderDelete(order)">
                                 Delete
                             </button>
                         </div>
@@ -87,6 +89,7 @@ else
         </tbody>
     </table>
 
+    <!-- Paging -->
     @if (_numberOfPages > 1)
     {
         <nav>
@@ -138,24 +141,41 @@ else
     }
 }
 
-@code {
-    private const int _ordersPerPage = 3;
-    private const int _numberOfPaginationButtons = 3;
+<OrderEdit
+    Show="_showOrderEdit"
+    NewOrder="_newOrderEdit"
+    Order="_orderToEdit"
+    OnCancelOrderEdit="CancelOrderEdit"
+    OnOrderEditComplete="async () => await CompleteOrderEdit()"
+    Providers="_providers" />
 
+<OrderDelete
+    Show="_showOrderDelete"
+    Order="_orderToDelete"
+    OnCancelOrderDelete="CancelOrderDelete"
+    OnOrderDeleteComplete="async () => await CompleteOrderDelete()" />
+
+@code {
     private IEnumerable<Order>? _orders;
 
-    private int _numberOfPages = 1;
-    private int _currentPage = 1;
-    private int[] _paginationButtons = Array.Empty<int>();
-
     private Provider[]? _providers;
+
     private int? _selectedProviderId;
 
     private DateTime _from = DateTime.UtcNow.Date.AddMonths(-1);
+
     private DateTime _to = DateTime.UtcNow.Date.AddDays(1);
+
+    private async Task GetData()
+    {
+        await GetOrders();
+        await GetProviders();
+    }
 
     private async Task GetOrders()
     {
+        _orders = null;
+
         StringBuilder strBuilder = new StringBuilder();
         strBuilder.Append("api/Orders");
         strBuilder.Append("?");
@@ -190,9 +210,20 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        await GetOrders();
-        await GetProviders();
+        await GetData();
     }
+
+    #region Paging
+
+    private const int _ordersPerPage = 7;
+
+    private const int _numberOfPaginationButtons = 3;
+
+    private int _numberOfPages = 1;
+
+    private int _currentPage = 1;
+
+    private int[] _paginationButtons = Array.Empty<int>();
 
     private async Task SetPage(int page)
     {
@@ -230,4 +261,68 @@ else
 
         return result;
     }
+
+    #endregion
+
+    #region Edit
+
+    private bool _showOrderEdit = false;
+    private bool _newOrderEdit = false;
+    private Order? _orderToEdit;
+
+    private void ShowOrderEdit(Order order, bool newOrder = false)
+    {
+        _newOrderEdit = newOrder;
+        _orderToEdit = order;
+        _showOrderEdit = true;
+    }
+
+    private void CancelOrderEdit()
+    {
+        _newOrderEdit = false;
+        _showOrderEdit = false;
+        _orderToEdit = null;
+    }
+
+    private async Task CompleteOrderEdit()
+    {
+        _showOrderEdit = false;
+        _newOrderEdit = false;
+        _orderToEdit = null;
+
+        await GetData();
+
+        StateHasChanged();
+    }
+
+    #endregion
+
+    #region Delete
+
+    private bool _showOrderDelete = false;
+    private Order? _orderToDelete;
+
+    private void ShowOrderDelete(Order order)
+    {
+        _orderToDelete = order;
+        _showOrderDelete = true;
+    }
+
+    private void CancelOrderDelete()
+    {
+        _showOrderDelete = false;
+        _orderToDelete = null;
+    }
+
+    private async Task CompleteOrderDelete()
+    {
+        _showOrderDelete = false;
+        _orderToDelete = null;
+
+        await GetData();
+
+        StateHasChanged();
+    }
+
+    #endregion
 }

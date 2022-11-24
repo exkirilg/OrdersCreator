@@ -73,6 +73,8 @@ public class OrdersServices : IOrdersServices
 
     public async Task Delete(int id)
     {
+        var order = await GetById(id);
+        await _unitOfWork.OrdersRepository.RemoveItems(order.Items.Select(i => i.Id));
         await _unitOfWork.OrdersRepository.Delete(id);
         await _unitOfWork.Save();
     }
@@ -96,7 +98,7 @@ public class OrdersServices : IOrdersServices
     {
         Order order = new Order(
             request.Number,
-            request.Date,
+            request.Date.ToUniversalTime(),
             await _unitOfWork.ProvidersRepository.GetById(request.ProviderId),
             request.Items.Select(i => new OrderItem(i.Name, i.Quantity, i.Unit)).ToArray()
         );
@@ -115,7 +117,7 @@ public class OrdersServices : IOrdersServices
     private async Task UpdateOrderByRequest(Order order, UpdateOrderRequest request)
     {
         order.Number = request.Number;
-        order.Date = request.Date;
+        order.Date = request.Date.ToUniversalTime();
         order.Provider = await _unitOfWork.ProvidersRepository.GetById(request.ProviderId);
 
         foreach (var itemId in GetItemsIdsToDeleteOnUpdate(order, request))
