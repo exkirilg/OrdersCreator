@@ -1,0 +1,110 @@
+﻿@inject HttpClient HttpClient
+
+@if (Show)
+{
+    <div class="modal fade show" style="display:block">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+
+                @if (_loading)
+                {
+                    <div class="modal-header">
+                        <h4 class="modal-title">Provider @Provider.Name deletion</h4>
+                    </div>
+
+                    <div class="d-flex justify-content-center modal-body">
+                        <div class="spinner-border" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <div class="modal-header">
+                        <h4 class="modal-title">Confirm provider @Provider.Name deletion</h4>
+
+                        <button
+                            type="button"
+                            class="close"
+                            @onclick="Cancel">
+                            &times;
+                        </button>
+                    </div>
+
+                    <div class="modal-body">
+                        <div class="text-center">
+                            <h5 class="text-danger">Warning!</h5>
+                            <p class="text-danger">
+                                This will permanently delete provider <b>@Provider.Name</b>.
+                                <br />
+                                This action cannot be undone.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button
+                            type="button"
+                            class="btn"
+                            @onclick="Cancel">
+                            Cancel
+                        </button>
+
+                        <button
+                            type="button"
+                            class="btn btn-danger"
+                            @onclick="Confirm">
+                            Delete
+                        </button>
+                    </div>
+                }
+
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private bool _loading = false;
+
+    [Parameter]
+    public bool Show { get; set; }
+
+    [Parameter]
+    public Provider Provider { get; set; } = null!;
+
+    [Parameter]
+    public Action? OnCancelProviderDelete { get; set; }
+
+    [Parameter]
+    public Action? OnProviderDeleteComplete { get; set; }
+
+    private void Cancel()
+    {
+        Show = false;
+        OnCancelProviderDelete?.Invoke();
+    }
+
+    private async Task Confirm()
+    {
+        _loading = true;
+
+        try
+        {
+            var result = await HttpClient.DeleteAsync($"api/Providers/{Provider.Id}");
+            if (result.IsSuccessStatusCode)
+            {
+                Show = false;
+                OnProviderDeleteComplete?.Invoke();
+            }
+        }
+        catch
+        {
+
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+}

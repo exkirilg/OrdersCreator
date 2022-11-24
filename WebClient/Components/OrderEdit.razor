@@ -1,5 +1,4 @@
 ﻿@inject HttpClient HttpClient
-@using Microsoft.AspNetCore.Components.Forms;
 
 @if (Show)
 {
@@ -176,6 +175,11 @@
 
     protected override void OnParametersSet()
     {
+        _number = string.Empty;
+        _date = DateTime.UtcNow;
+        _providerId = -1;
+        _items = new();
+
         if (Order is not null && NewOrder == false)
         {
             _number = Order.Number;
