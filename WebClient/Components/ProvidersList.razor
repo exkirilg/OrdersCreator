@@ -1,4 +1,5 @@
-﻿@inject HttpClient HttpClient
+﻿@using System.Text;
+@inject HttpClient HttpClient
 
 @if (_providers is null)
 {
@@ -109,7 +110,23 @@ else
 
     private async Task GetProviders()
     {
-        _providers = await HttpClient.GetFromJsonAsync<Provider[]>("api/Providers");
+        _providers = null;
+
+        StringBuilder strBuilder = new StringBuilder();
+        strBuilder.Append("api/Providers");
+        strBuilder.Append("?");
+        strBuilder.Append($"Limit={_providersPerPage}");
+        strBuilder.Append("&");
+        strBuilder.Append($"Offset={_providersPerPage * (_currentPage - 1)}");
+
+        var response = await HttpClient.GetFromJsonAsync<GetProvidersResponse>(strBuilder.ToString());
+
+        if (response is not null)
+        {
+            _numberOfPages = (int)Math.Ceiling((double)response.ProvidersNumber/_providersPerPage);
+            _paginationButtons = GetPagesNumbersForPaginationButtons();
+            _providers = response.Providers;
+        }
     }
 
     protected override async Task OnInitializedAsync()

@@ -2,6 +2,7 @@
 using Domain.DTO;
 using Domain.Models;
 using Domain.Services;
+using System.Linq.Expressions;
 
 namespace Services;
 
@@ -14,10 +15,17 @@ public class ProvidersServices : IProvidersServices
         _unitOfWork = unitOfWork;
     }
 
-    public async Task<IEnumerable<Provider>> GetAll()
+    public async Task<GetProvidersResponse> Get(GetProvidersRequest request)
     {
-        return await _unitOfWork.ProvidersRepository
-            .Get(orderBy: q => q.OrderBy(p => p.Name));
+        var providers = await _unitOfWork.ProvidersRepository.Get(
+            orderBy: q => q.OrderBy(o => o.Name),
+            limit: request.Limit,
+            offset: request.Offset
+        );
+
+        var providersNumber = await _unitOfWork.ProvidersRepository.GetProvidersNumber();
+
+        return new GetProvidersResponse(providers, providersNumber);
     }
 
     public async Task<Provider> GetById(int id)

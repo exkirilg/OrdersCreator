@@ -43,9 +43,9 @@ public class OrdersServices : IOrdersServices
             request.Offset
         );
 
-        var orderNumber = await _unitOfWork.OrdersRepository.GetOrdersNumber(filterExpression);
+        var ordersNumber = await _unitOfWork.OrdersRepository.GetOrdersNumber(filterExpression);
 
-        return new GetOrdersResponse(orders, orderNumber);
+        return new GetOrdersResponse(orders, ordersNumber);
     }
 
     public async Task<Order> GetById(int id)

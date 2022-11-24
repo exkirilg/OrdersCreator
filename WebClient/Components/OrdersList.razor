@@ -205,7 +205,13 @@ else
 
     private async Task GetProviders()
     {
-        _providers = await HttpClient.GetFromJsonAsync<Provider[]>("api/Providers");
+        _providers = null;
+
+        var response = await HttpClient.GetFromJsonAsync<GetProvidersResponse>("api/Providers");
+        if (response is not null)
+        {
+            _providers = response.Providers;
+        }
     }
 
     protected override async Task OnInitializedAsync()

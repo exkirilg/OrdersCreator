@@ -26,12 +26,13 @@ public class ProvidersController : ControllerBase
     /// <summary>
     /// Returns a list of all providers
     /// </summary>
+    /// <param name="request"></param>
     /// <returns></returns>
     /// <response code="200"></response>
     [HttpGet]
-    public async Task<IActionResult> GetAll()
+    public async Task<IActionResult> Get([FromQuery] GetProvidersRequest request)
     {
-        return Ok(await _providersServices.GetAll());
+        return Ok(await _providersServices.Get(request));
     }
 
     /// <summary>
