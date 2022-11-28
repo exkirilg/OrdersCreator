@@ -1,5 +1,6 @@
 ﻿using Domain.CustomExceptions;
 using Domain.DTO;
+using Domain.Models;
 using Domain.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -51,7 +52,8 @@ public class OrdersController : ControllerBase
         }
         catch (NoEntityFoundByIdException ex)
         {
-            return BadRequest(ex.Message);
+            ModelState.AddModelError(nameof(Order.Id), ex.Message);
+            return ValidationProblem();
         }
         catch
         {
@@ -69,8 +71,25 @@ public class OrdersController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Create(NewOrderRequest request)
     {
-        await _ordersServices.Create(request);
-        return Ok();
+        try
+        {
+            await _ordersServices.Create(request);
+            return Ok();
+        }
+        catch(OrderValidationException ex)
+        {
+            foreach (var validationResult in ex.ValidationResults)
+            {
+                ModelState.AddModelError(
+                    string.Join(',', validationResult.MemberNames),
+                    validationResult.ErrorMessage ?? string.Empty);
+            }
+            return ValidationProblem();
+        }
+        catch
+        {
+            return StatusCode(500);
+        }
     }
 
     /// <summary>
@@ -90,7 +109,18 @@ public class OrdersController : ControllerBase
         }
         catch (NoEntityFoundByIdException ex)
         {
-            return BadRequest(ex.Message);
+            ModelState.AddModelError(nameof(Order.Id), ex.Message);
+            return ValidationProblem();
+        }
+        catch (OrderValidationException ex)
+        {
+            foreach (var validationResult in ex.ValidationResults)
+            {
+                ModelState.AddModelError(
+                    string.Join(',', validationResult.MemberNames),
+                    validationResult.ErrorMessage ?? string.Empty);
+            }
+            return ValidationProblem();
         }
         catch
         {
@@ -115,7 +145,8 @@ public class OrdersController : ControllerBase
         }
         catch (NoEntityFoundByIdException ex)
         {
-            return BadRequest(ex.Message);
+            ModelState.AddModelError(nameof(Order.Id), ex.Message);
+            return ValidationProblem();
         }
         catch
         {

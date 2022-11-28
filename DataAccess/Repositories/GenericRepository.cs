@@ -65,7 +65,7 @@ public abstract class GenericRepository<TEntity> : IGenericRepository<TEntity> w
             query = query.Include(includeProperty);
         }
 
-        TEntity? entity = await query.FirstAsync();
+        TEntity? entity = await query.FirstOrDefaultAsync();
 
         if (entity is null)
         {

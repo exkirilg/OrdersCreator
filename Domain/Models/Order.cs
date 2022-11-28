@@ -2,7 +2,7 @@
 
 namespace Domain.Models;
 
-public class Order : Entity
+public class Order : Entity, IValidatableObject
 {
     private string _number = string.Empty;
     private DateTime _date;
@@ -119,5 +119,15 @@ public class Order : Entity
         }
 
         _items.Remove(currentItem);
+    }
+
+    public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+    {
+        if (Items.Where(i => i.Name == Number).Any())
+        {
+            yield return new ValidationResult(
+                "Order item's name must not be equal to order's number",
+                new[] { nameof(Items) });
+        }
     }
 }

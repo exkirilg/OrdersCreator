@@ -51,7 +51,8 @@ public class ProvidersController : ControllerBase
         }
         catch (NoEntityFoundByIdException ex)
         {
-            return BadRequest(ex.Message);
+            ModelState.AddModelError("Id", ex.Message);
+            return ValidationProblem();
         }
         catch
         {
@@ -90,7 +91,8 @@ public class ProvidersController : ControllerBase
         }
         catch (NoEntityFoundByIdException ex)
         {
-            return BadRequest(ex.Message);
+            ModelState.AddModelError("Id", ex.Message);
+            return ValidationProblem();
         }
         catch
         {
@@ -115,7 +117,8 @@ public class ProvidersController : ControllerBase
         }
         catch (NoEntityFoundByIdException ex)
         {
-            return BadRequest(ex.Message);
+            ModelState.AddModelError("Id", ex.Message);
+            return ValidationProblem();
         }
         catch
         {
