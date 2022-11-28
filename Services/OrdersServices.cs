@@ -1,7 +1,9 @@
-﻿using Domain.DataAccess;
+﻿using Domain.CustomExceptions;
+using Domain.DataAccess;
 using Domain.DTO;
 using Domain.Models;
 using Domain.Services;
+using System.ComponentModel.DataAnnotations;
 using System.Linq.Expressions;
 
 namespace Services;
@@ -57,6 +59,9 @@ public class OrdersServices : IOrdersServices
     public async Task Create(NewOrderRequest request)
     {
         Order order = await ConvertToOrder(request);
+
+        await ValidateOrder(order);
+
         await _unitOfWork.OrdersRepository.Insert(order);
         await _unitOfWork.Save();
     }
@@ -66,6 +71,9 @@ public class OrdersServices : IOrdersServices
         Order order = await GetById(request.Id);
         var itemsIdsToDelete = GetItemsIdsToDeleteOnUpdate(order, request);
         await UpdateOrderByRequest(order, request);
+
+        await ValidateOrder(order);
+
         await _unitOfWork.OrdersRepository.RemoveItems(itemsIdsToDelete);
         _unitOfWork.OrdersRepository.Update(order);
         await _unitOfWork.Save();
@@ -139,5 +147,35 @@ public class OrdersServices : IOrdersServices
                 item.Id,
                 new OrderItem(item.Name, item.Quantity, item.Unit));
         }
+    }
+
+    private async Task ValidateOrder(Order order)
+    {
+        List<ValidationResult> validationResults = order.Validate(new ValidationContext(order)).ToList();
+
+        if (await OrderWithSameNumberAndSameProviderExists(order))
+        {
+            validationResults.Add(
+                new ValidationResult(
+                    $"Order with same number ({order.Number}) and same provider ({order.Provider.Name}) exists",
+                    new[] { nameof(Order.Number), nameof(Order.Provider) }));
+        }
+
+        if (validationResults.Any())
+        {
+            throw new OrderValidationException(validationResults);
+        }
+    }
+
+    private async Task<bool> OrderWithSameNumberAndSameProviderExists(Order order)
+    {
+        Expression<Func<Order, bool>> filterExpression =
+            o => o.Id != order.Id
+                && o.Number == order.Number
+                && o.Provider.Id == order.Provider.Id;
+
+        var orders = await _unitOfWork.OrdersRepository.Get(filterExpression);
+        
+        return orders.Any();
     }
 }
