@@ -29,9 +29,9 @@
                             <p class="text-danger">
                                 This will permanently delete
                                 <br />
-                                <b>@EntityName</b>.
+                                <b>@EntityName</b>
                                 <br />
-                                This action cannot be undone.
+                                This action cannot be undone
                                 @if (_systemMessage is not null)
                                 {
                                     <hr />
@@ -108,10 +108,5 @@
         {
             _loading = false;
         }
-    }
-
-    private async Task Submit()
-    {
-        Console.WriteLine("SUBMIT");
     }
 }
