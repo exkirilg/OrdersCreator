@@ -9,7 +9,8 @@ public class Order : Entity, IValidatableObject
     private Provider _provider = null!;
     private List<OrderItem> _items = new();
 
-    [Required]
+    [Required(AllowEmptyStrings = false, ErrorMessage = "Number must be filled")]
+    [StringLength(25, ErrorMessage = "Number must not exceed 25 characters")]
     public string Number
     {
         get => _number;
@@ -24,11 +25,11 @@ public class Order : Entity, IValidatableObject
                     nameof(value));
             }
 
-            _number = value;
+            _number = value.Trim();
         }
     }
 
-    [Required]
+    [Required(ErrorMessage = "Date must be filled")]
     public DateTime Date
     {
         get => _date;
@@ -44,7 +45,7 @@ public class Order : Entity, IValidatableObject
         }
     }
 
-    [Required]
+    [Required(ErrorMessage = "Provider must be filled")]
     public Provider Provider
     {
         get => _provider;
@@ -60,7 +61,6 @@ public class Order : Entity, IValidatableObject
         }
     }
 
-    [Required]
     public IReadOnlyCollection<OrderItem> Items
     {
         get => _items;
@@ -129,5 +129,19 @@ public class Order : Entity, IValidatableObject
                 "Order item's name must not be equal to order's number",
                 new[] { nameof(Items) });
         }
+    }
+
+    public Order Copy()
+    {
+        Order newOrder = new(
+            Number,
+            Date,
+            Provider,
+            Items.Select(i => i.Copy()).ToArray())
+        {
+            Id = Id
+        };
+
+        return newOrder;
     }
 }

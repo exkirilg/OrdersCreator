@@ -8,7 +8,8 @@ public class OrderItem : Entity
     private float _quantity;
     private string _unit = string.Empty;
 
-    [Required]
+    [Required(AllowEmptyStrings = false, ErrorMessage = "Name must be filled")]
+    [StringLength(150, ErrorMessage = "Name must not exceed 150 characters")]
     public string Name
     {
         get => _name;
@@ -23,11 +24,11 @@ public class OrderItem : Entity
                     nameof(value));
             }
 
-            _name = value;
+            _name = value.Trim();
         }
     }
 
-    [Range(minimum: 0, maximum: float.MaxValue)]
+    [Range(minimum: 0, maximum: float.MaxValue, ErrorMessage = "Quantity must be filled")]
     public float Quantity
     {
         get => _quantity;
@@ -46,7 +47,8 @@ public class OrderItem : Entity
         }
     }
 
-    [Required]
+    [Required(AllowEmptyStrings = false, ErrorMessage = "Unit must be filled")]
+    [StringLength(50, ErrorMessage = "Unit must not exceed 50 characters")]
     public string Unit
     {
         get => _unit;
@@ -61,7 +63,7 @@ public class OrderItem : Entity
                     nameof(value));
             }
 
-            _unit = value;
+            _unit = value.Trim();
         }
     }
 
@@ -74,5 +76,10 @@ public class OrderItem : Entity
         Name = name;
         Quantity = quantity;
         Unit = unit;
+    }
+
+    public OrderItem Copy()
+    {
+        return (OrderItem)MemberwiseClone();
     }
 }

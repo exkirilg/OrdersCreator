@@ -31,7 +31,7 @@ namespace DataAccess.Migrations
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Number = table.Column<string>(type: "text", nullable: false),
+                    Number = table.Column<string>(type: "character varying(25)", maxLength: 25, nullable: false),
                     Date = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     ProviderId = table.Column<int>(type: "integer", nullable: false)
                 },
@@ -52,9 +52,9 @@ namespace DataAccess.Migrations
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Name = table.Column<string>(type: "text", nullable: false),
+                    Name = table.Column<string>(type: "character varying(150)", maxLength: 150, nullable: false),
                     Quantity = table.Column<float>(type: "real", nullable: false),
-                    Unit = table.Column<string>(type: "text", nullable: false),
+                    Unit = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
                     OrderId = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>

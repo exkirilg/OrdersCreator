@@ -42,7 +42,7 @@
                             <div class="form-group row">
                                 <label class="col-sm-2 col-form-label">Name</label>
                                 <div class="col-sm-10">
-                                    <InputText type="text" class="form-control" @bind-Value="_provider!.Name" />
+                                    <InputText class="form-control" @bind-Value="_provider!.Name" />
                                     <div class="text-center text-danger my-1">
                                         <small>
                                             <ValidationMessage For="@(() => _provider.Name)"/>
