@@ -71,7 +71,7 @@ else
             @foreach (var order in _orders)
             {
                 <tr>
-                    <td scope="row">@order.Date.ToString(CultureInfo.CreateSpecificCulture("").DateTimeFormat.ShortDatePattern)</td>
+                    <td scope="row">@order.Date.ToString()</td>
                     <td scope="row">@order.Number</td>
                     <td scope="row">@order.Provider.Name</td>
                     <td scope="row">
@@ -141,19 +141,18 @@ else
     }
 }
 
-<OrderEdit
-    Show="_showOrderEdit"
-    NewOrder="_newOrderEdit"
-    Order="_orderToEdit"
-    OnCancelOrderEdit="CancelOrderEdit"
-    OnOrderEditComplete="async () => await CompleteOrderEdit()"
-    Providers="_providers" />
+<OrderEdit Show="_showOrderEdit"
+           NewOrder="_newOrderEdit"
+           Order="_orderToEdit"
+           OnCancelOrderEdit="CancelOrderEdit"
+           OnOrderEditComplete="async () => await CompleteOrderEdit()"
+           Providers="_providers" />
 
-<OrderDelete
-    Show="_showOrderDelete"
-    Order="_orderToDelete"
-    OnCancelOrderDelete="CancelOrderDelete"
-    OnOrderDeleteComplete="async () => await CompleteOrderDelete()" />
+<EntityDelete Show="_showDelete"
+              RequestUri="@(_orderToDelete is null ? string.Empty : $"api/Orders/{_orderToDelete.Id}")"
+              EntityName="@(_orderToDelete?.Number is null ? string.Empty : $"Order {_orderToDelete.Number} {_orderToDelete.Date.ToString()}")"
+              OnCancel="CancelOrderDelete"
+              OnComplete="async () => await CompleteOrderDelete()" />
 
 @code {
     private IEnumerable<Order>? _orders;
@@ -305,24 +304,24 @@ else
 
     #region Delete
 
-    private bool _showOrderDelete = false;
+    private bool _showDelete = false;
     private Order? _orderToDelete;
 
     private void ShowOrderDelete(Order order)
     {
         _orderToDelete = order;
-        _showOrderDelete = true;
+        _showDelete = true;
     }
 
     private void CancelOrderDelete()
     {
-        _showOrderDelete = false;
+        _showDelete = false;
         _orderToDelete = null;
     }
 
     private async Task CompleteOrderDelete()
     {
-        _showOrderDelete = false;
+        _showDelete = false;
         _orderToDelete = null;
 
         await GetData();

@@ -95,15 +95,16 @@ else
 }
 
 <ProviderEdit Show="_showProviderEdit"
-           NewProvider="_newProviderEdit"
-           Provider="_providerToEdit"
-           OnCancelProviderEdit="CancelOrderEdit"
-           OnProviderEditComplete="async () => await CompleteProviderEdit()" />
+              NewProvider="_newProviderEdit"
+              Provider="_providerToEdit"
+              OnCancelProviderEdit="CancelOrderEdit"
+              OnProviderEditComplete="async () => await CompleteProviderEdit()" />
 
-<ProviderDelete Show="_showProviderDelete"
-             Provider="_providerToDelete"
-             OnCancelProviderDelete="CancelProviderDelete"
-             OnProviderDeleteComplete="async () => await CompleteProviderDelete()" />
+<EntityDelete Show="_showDelete"
+              RequestUri="@(_providerToDelete is null ? string.Empty : $"api/Providers/{_providerToDelete.Id}")"
+              EntityName="@(_providerToDelete?.Name is null ? string.Empty : $"Provider {_providerToDelete.Name}")"
+              OnCancel="CancelProviderDelete"
+              OnComplete="async () => await CompleteProviderDelete()" />
 
 @code {
     private IEnumerable<Provider>? _providers;
@@ -220,24 +221,24 @@ else
 
     #region Delete
 
-    private bool _showProviderDelete = false;
+    private bool _showDelete = false;
     private Provider? _providerToDelete;
 
     private void ShowProviderDelete(Provider provider)
     {
         _providerToDelete = provider;
-        _showProviderDelete = true;
+        _showDelete = true;
     }
 
     private void CancelProviderDelete()
     {
-        _showProviderDelete = false;
+        _showDelete = false;
         _providerToDelete = null;
     }
 
     private async Task CompleteProviderDelete()
     {
-        _showProviderDelete = false;
+        _showDelete = false;
         _providerToDelete = null;
 
         await GetProviders();

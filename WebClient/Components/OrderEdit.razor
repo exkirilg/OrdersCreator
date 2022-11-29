@@ -15,7 +15,7 @@
                         }
                         else
                         {
-                            <h4 class="modal-title">Order @Order?.Number</h4>
+                            <h4 class="modal-title">"@($"Order {Order?.Number} {Order?.Date.ToString()}")"</h4>
                         }
                     </div>
 
@@ -34,13 +34,10 @@
                         }
                         else
                         {
-                            <h4 class="modal-title">Order @Order?.Number</h4>
+                            <h4 class="modal-title">"@($"Order {Order?.Number} {Order?.Date.ToString()}")"</h4>
                         }
 
-                        <button
-                            type="button"
-                            class="close"
-                            @onclick="Cancel">
+                        <button type="button" class="close" @onclick="Cancel">
                             &times;
                         </button>
                     </div>
@@ -126,17 +123,10 @@
                     </div>
 
                     <div class="modal-footer">
-                        <button
-                            type="button"
-                            class="btn"
-                            @onclick="Cancel">
+                        <button type="button" class="btn" @onclick="Cancel">
                             Cancel
                         </button>
-
-                        <button
-                            type="button"
-                            class="btn btn-success"
-                            @onclick="SaveChanges">
+                        <button type="button" class="btn btn-success" @onclick="SaveChanges">
                             Save
                         </button>
                     </div>
