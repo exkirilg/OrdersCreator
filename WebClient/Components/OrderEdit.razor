@@ -87,61 +87,72 @@
                                 </div>
 
                                 <!-- Items -->
-                                <div class="form-group row">
-                                    <table class="table table-striped">
-                                        <thead>
-                                            <tr class="fw-bold text-uppercase">
-                                                <td scope="col">Name</td>
-                                                <td scope="col">Quantity</td>
-                                                <td scope="col">Unit</td>
-                                                <td scope="col" />
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            @foreach (var item in _order!.Items)
-                                            {
-                                                <tr>
-                                                    <td scope="row">
-                                                        <InputText class="form-control" @bind-Value="@item.Name" />
-                                                        <div class="text-center text-danger my-1">
-                                                            <small>
-                                                                <ValidationMessage For="@(() => item.Name)" />
-                                                            </small>
-                                                        </div>
-                                                    </td>
-                                                    <td scope="row">
-                                                        <InputNumber class="form-control" @bind-Value="@item.Quantity" />
-                                                        <div class="text-center text-danger my-1">
-                                                            <small>
-                                                                <ValidationMessage For="@(() => item.Quantity)" />
-                                                            </small>
-                                                        </div>
-                                                    </td>
-                                                    <td scope="row">
-                                                        <InputText class="form-control" @bind-Value="@item.Unit" />
-                                                        <div class="text-center text-danger my-1">
-                                                            <small>
-                                                                <ValidationMessage For="@(() => item.Unit)" />
-                                                            </small>
-                                                        </div>
-                                                    </td>
-                                                    <td scope="row">
-                                                        <button class="btn btn-danger" @onclick="() => _order!.RemoveItem(item.Id)">
-                                                            Delete
-                                                        </button>
-                                                    </td>
-                                                </tr>
-                                            }
-                                            <tr>
-                                                <td scope="row" colspan="4">
-                                                    <button class="btn btn-success" @onclick="() => _order!.AddItem(new OrderItem())">
-                                                        Add item
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
+                                <div class="vstack gap-2 p-2 border rounded">
+
+                                    <div class="row fw-bold text-uppercase text-center">
+                                        <div class="col-3">Name</div>
+                                        <div class="col-3">Quantity</div>
+                                        <div class="col-3">Unit</div>
+                                        <div class="col-3" />
+                                    </div>
+
+                                    @foreach (var item in _order.Items)
+                                    {
+                                        <EditForm EditContext="@_itemsContext[item]" Context="itemContext" class="form-group row">
+                                            <div class="col-3">
+                                                <InputText @bind-Value="item.Name" class="form-control" />
+                                                <div class="text-center text-danger my-1">
+                                                    <small>
+                                                        <ValidationMessage For="@(() => item.Name)" />
+                                                    </small>
+                                                </div>
+                                            </div>
+                                            <div class="col-3">
+                                                <InputNumber @bind-Value="item.Quantity" class="form-control" />
+                                                <div class="text-center text-danger my-1">
+                                                    <small>
+                                                        <ValidationMessage For="@(() => item.Quantity)" />
+                                                    </small>
+                                                </div>
+                                            </div>
+                                            <div class="col-3">
+                                                <InputText @bind-Value="item.Unit" class="form-control" />
+                                                <div class="text-center text-danger my-1">
+                                                    <small>
+                                                        <ValidationMessage For="@(() => item.Unit)" />
+                                                    </small>
+                                                </div>
+                                            </div>
+                                            <div class="col-3">
+                                                <button type="button" class="btn btn-danger" @onclick="() => RemoveItem(item)">
+                                                    Delete
+                                                </button>
+                                            </div>
+                                        </EditForm>
+                                    }
+
+                                    <div class="row">
+                                        <div class="col-3">
+                                            <button type="button" class="btn btn-success" @onclick="() => AddItem()">
+                                                Add item
+                                            </button>
+                                        </div>
+                                        <div class="col-3" />
+                                        <div class="col-3" />
+                                        <div class="col-3" />
+                                    </div>
+
                                 </div>
+
+                                @if (_systemMessage is not null)
+                                {
+                                    <div class="row">
+                                        <div class="col-12">
+                                            <hr />
+                                            <p class="text-danger">@_systemMessage</p>
+                                        </div>
+                                    </div>
+                                }
 
                             </div>
 
@@ -170,6 +181,10 @@
     private Order? _order;
 
     private int _providerId = 0;
+
+    private Dictionary<OrderItem, EditContext> _itemsContext = new();
+
+    private string? _systemMessage;
 
     [Parameter]
     public bool Show { get; set; }
@@ -212,6 +227,10 @@
         {
             _order = Order.Copy();
             ProviderId = Order.Provider.Id;
+            foreach (var item in _order.Items)
+            {
+                AddItem(item);
+            }
         }
     }
 
@@ -223,6 +242,10 @@
 
     private async Task SaveChanges()
     {
+        _systemMessage = null;
+
+        if (ItemsAreValid() == false) return;
+
         _loading = true;
 
         try
@@ -233,11 +256,11 @@
                     _order!.Number, _order!.Date, _order!.Provider.Id,
                     _order!.Items.Select(i => new NewOrderRequestItem(i.Name, i.Quantity, i.Unit)));
                 var result = await HttpClient.PostAsJsonAsync<NewOrderRequest>($"api/Orders", request);
-                if (result.IsSuccessStatusCode)
-                {
-                    EndEditing();
-                    OnComplete?.Invoke();
-                }
+
+                result.EnsureSuccessStatusCode();
+
+                EndEditing();
+                OnComplete?.Invoke();
             }
             else
             {
@@ -245,16 +268,16 @@
                     _order!.Id, _order!.Number, _order!.Date, _order!.Provider.Id,
                     _order!.Items.Select(i => new UpdateOrderRequestItem(i.Id, i.Name, i.Quantity, i.Unit)));
                 var result = await HttpClient.PutAsJsonAsync<UpdateOrderRequest>($"api/Orders", request);
-                if (result.IsSuccessStatusCode)
-                {
-                    EndEditing();
-                    OnComplete?.Invoke();
-                }
+
+                result.EnsureSuccessStatusCode();
+
+                EndEditing();
+                OnComplete?.Invoke();
             }
         }
         catch
         {
-
+            _systemMessage = $"Operation has failed. Please try again later or call administrator";
         }
         finally
         {
@@ -266,8 +289,53 @@
     {
         _order = null;
         _providerId = 0;
+        _itemsContext = new();
+        _systemMessage = null;
         Show = false;
         Order = null;
         Providers = Enumerable.Empty<Provider>();
+    }
+
+    private void AddItem(OrderItem? item = null)
+    {
+        OrderItem newItem;
+        if (item is null)
+        {
+            newItem = new OrderItem();
+            _order!.AddItem(newItem);
+        }
+        else
+        {
+            newItem = item;
+        }
+
+        var editContext = new EditContext(newItem);
+
+        #pragma warning disable CS0618
+        editContext.EnableDataAnnotationsValidation();
+        #pragma warning restore CS0618
+
+        _itemsContext.Add(newItem, editContext);
+    }
+
+    private void RemoveItem(OrderItem item)
+    {
+        _order!.RemoveItem(item.Id);
+        _itemsContext.Remove(item);
+    }
+
+    private bool ItemsAreValid()
+    {
+        var result = true;
+
+        foreach (var context in _itemsContext.Values)
+        {
+            if (context.Validate() == false)
+            {
+                result = false;
+            }
+        }
+
+        return result;
     }
 }
