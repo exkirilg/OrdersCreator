@@ -50,7 +50,7 @@ else
                 Filter
             </button>
 
-            <button type="button" class="btn btn-success shadow-sm" @onclick="() => ShowOrderEdit(new Order(), true)">
+            <button type="button" class="btn btn-success shadow-sm" @onclick="() => ShowEdit()">
                 New
             </button>
         </div>
@@ -71,15 +71,15 @@ else
             @foreach (var order in _orders)
             {
                 <tr>
-                    <td scope="row">@order.Date.ToString(CultureInfo.CreateSpecificCulture("").DateTimeFormat.ShortDatePattern)</td>
+                    <td scope="row">@order.Date.ToString()</td>
                     <td scope="row">@order.Number</td>
                     <td scope="row">@order.Provider.Name</td>
                     <td scope="row">
                         <div class="hstack gap-2">
-                            <button class="btn btn-warning shadow-sm" @onclick="() => ShowOrderEdit(order)">
+                            <button class="btn btn-warning shadow-sm" @onclick="() => ShowEdit(order)">
                                 Edit
                             </button>
-                            <button class="btn btn-danger shadow-sm" @onclick="() => ShowOrderDelete(order)">
+                            <button class="btn btn-danger shadow-sm" @onclick="() => ShowDelete(order)">
                                 Delete
                             </button>
                         </div>
@@ -141,19 +141,17 @@ else
     }
 }
 
-<OrderEdit
-    Show="_showOrderEdit"
-    NewOrder="_newOrderEdit"
-    Order="_orderToEdit"
-    OnCancelOrderEdit="CancelOrderEdit"
-    OnOrderEditComplete="async () => await CompleteOrderEdit()"
-    Providers="_providers" />
+<OrderEdit Show="_showEdit"
+           Order="_orderToEdit"
+           OnCancel="CancelEdit"
+           OnComplete="async () => await CompleteEdit()"
+           Providers="_providers" />
 
-<OrderDelete
-    Show="_showOrderDelete"
-    Order="_orderToDelete"
-    OnCancelOrderDelete="CancelOrderDelete"
-    OnOrderDeleteComplete="async () => await CompleteOrderDelete()" />
+<EntityDelete Show="_showDelete"
+              RequestUri="@(_orderToDelete is null ? string.Empty : $"api/Orders/{_orderToDelete.Id}")"
+              EntityName="@(_orderToDelete?.Number is null ? string.Empty : $"Order {_orderToDelete.Number} {_orderToDelete.Date.ToString()}")"
+              OnCancel="CancelDelete"
+              OnComplete="async () => await CompleteDelete()" />
 
 @code {
     private IEnumerable<Order>? _orders;
@@ -272,28 +270,24 @@ else
 
     #region Edit
 
-    private bool _showOrderEdit = false;
-    private bool _newOrderEdit = false;
+    private bool _showEdit = false;
     private Order? _orderToEdit;
 
-    private void ShowOrderEdit(Order order, bool newOrder = false)
+    private void ShowEdit(Order? order = null)
     {
-        _newOrderEdit = newOrder;
         _orderToEdit = order;
-        _showOrderEdit = true;
+        _showEdit = true;
     }
 
-    private void CancelOrderEdit()
+    private void CancelEdit()
     {
-        _newOrderEdit = false;
-        _showOrderEdit = false;
+        _showEdit = false;
         _orderToEdit = null;
     }
 
-    private async Task CompleteOrderEdit()
+    private async Task CompleteEdit()
     {
-        _showOrderEdit = false;
-        _newOrderEdit = false;
+        _showEdit = false;
         _orderToEdit = null;
 
         await GetData();
@@ -305,24 +299,24 @@ else
 
     #region Delete
 
-    private bool _showOrderDelete = false;
+    private bool _showDelete = false;
     private Order? _orderToDelete;
 
-    private void ShowOrderDelete(Order order)
+    private void ShowDelete(Order order)
     {
         _orderToDelete = order;
-        _showOrderDelete = true;
+        _showDelete = true;
     }
 
-    private void CancelOrderDelete()
+    private void CancelDelete()
     {
-        _showOrderDelete = false;
+        _showDelete = false;
         _orderToDelete = null;
     }
 
-    private async Task CompleteOrderDelete()
+    private async Task CompleteDelete()
     {
-        _showOrderDelete = false;
+        _showDelete = false;
         _orderToDelete = null;
 
         await GetData();

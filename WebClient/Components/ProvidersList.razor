@@ -12,7 +12,7 @@
 else
 {
     <!-- Controls -->
-    <button type="button" class="btn btn-success shadow-sm" @onclick="() => ShowProviderEdit(new Provider(), true)">
+    <button type="button" class="btn btn-success shadow-sm" @onclick="() => ShowEdit()">
         New
     </button>
 
@@ -31,10 +31,10 @@ else
                     <td scope="row">@provider.Name</td>
                     <td scope="row">
                         <div class="hstack gap-2">
-                            <button class="btn btn-warning shadow-sm" @onclick="() => ShowProviderEdit(provider)">
+                            <button class="btn btn-warning shadow-sm" @onclick="() => ShowEdit(provider)">
                                 Edit
                             </button>
-                            <button class="btn btn-danger shadow-sm" @onclick="() => ShowProviderDelete(provider)">
+                            <button class="btn btn-danger shadow-sm" @onclick="() => ShowDelete(provider)">
                                 Delete
                             </button>
                         </div>
@@ -95,15 +95,15 @@ else
 }
 
 <ProviderEdit Show="_showProviderEdit"
-           NewProvider="_newProviderEdit"
-           Provider="_providerToEdit"
-           OnCancelProviderEdit="CancelOrderEdit"
-           OnProviderEditComplete="async () => await CompleteProviderEdit()" />
+              Provider="_providerToEdit"
+              OnCancel="CancelEdit"
+              OnComplete="async () => await CompleteEdit()" />
 
-<ProviderDelete Show="_showProviderDelete"
-             Provider="_providerToDelete"
-             OnCancelProviderDelete="CancelProviderDelete"
-             OnProviderDeleteComplete="async () => await CompleteProviderDelete()" />
+<EntityDelete Show="_showDelete"
+              RequestUri="@(_providerToDelete is null ? string.Empty : $"api/Providers/{_providerToDelete.Id}")"
+              EntityName="@(_providerToDelete?.Name is null ? string.Empty : $"Provider {_providerToDelete.Name}")"
+              OnCancel="CancelDelete"
+              OnComplete="async () => await CompleteDelete()" />
 
 @code {
     private IEnumerable<Provider>? _providers;
@@ -188,27 +188,23 @@ else
     #region Edit
 
     private bool _showProviderEdit = false;
-    private bool _newProviderEdit = false;
     private Provider? _providerToEdit;
 
-    private void ShowProviderEdit(Provider provider, bool newProvider = false)
+    private void ShowEdit(Provider? provider = null)
     {
-        _newProviderEdit = newProvider;
         _providerToEdit = provider;
         _showProviderEdit = true;
     }
 
-    private void CancelOrderEdit()
+    private void CancelEdit()
     {
-        _newProviderEdit = false;
         _showProviderEdit = false;
         _providerToEdit = null;
     }
 
-    private async Task CompleteProviderEdit()
+    private async Task CompleteEdit()
     {
         _showProviderEdit = false;
-        _newProviderEdit = false;
         _providerToEdit = null;
 
         await GetProviders();
@@ -220,24 +216,24 @@ else
 
     #region Delete
 
-    private bool _showProviderDelete = false;
+    private bool _showDelete = false;
     private Provider? _providerToDelete;
 
-    private void ShowProviderDelete(Provider provider)
+    private void ShowDelete(Provider provider)
     {
         _providerToDelete = provider;
-        _showProviderDelete = true;
+        _showDelete = true;
     }
 
-    private void CancelProviderDelete()
+    private void CancelDelete()
     {
-        _showProviderDelete = false;
+        _showDelete = false;
         _providerToDelete = null;
     }
 
-    private async Task CompleteProviderDelete()
+    private async Task CompleteDelete()
     {
-        _showProviderDelete = false;
+        _showDelete = false;
         _providerToDelete = null;
 
         await GetProviders();

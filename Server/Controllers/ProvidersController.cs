@@ -54,10 +54,6 @@ public class ProvidersController : ControllerBase
             ModelState.AddModelError("Id", ex.Message);
             return ValidationProblem();
         }
-        catch
-        {
-            return StatusCode(500);
-        }
     }
 
     /// <summary>
@@ -94,10 +90,6 @@ public class ProvidersController : ControllerBase
             ModelState.AddModelError("Id", ex.Message);
             return ValidationProblem();
         }
-        catch
-        {
-            return StatusCode(500);
-        }
     }
 
     /// <summary>
@@ -107,6 +99,7 @@ public class ProvidersController : ControllerBase
     /// <returns></returns>
     /// <response code="200"></response>
     /// <response code="400">There is no provider with specified id</response>
+    /// <response code="409">Provider with specified id cannot be deleted</response>
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
     {
@@ -122,7 +115,8 @@ public class ProvidersController : ControllerBase
         }
         catch
         {
-            return StatusCode(500);
+            ModelState.AddModelError("Provider", $"Provider with id {id} cannot be deleted");
+            return Conflict(ModelState);
         }
     }
 }

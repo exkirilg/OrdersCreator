@@ -55,10 +55,6 @@ public class OrdersController : ControllerBase
             ModelState.AddModelError(nameof(Order.Id), ex.Message);
             return ValidationProblem();
         }
-        catch
-        {
-            return StatusCode(500);
-        }
     }
 
     /// <summary>
@@ -85,10 +81,6 @@ public class OrdersController : ControllerBase
                     validationResult.ErrorMessage ?? string.Empty);
             }
             return ValidationProblem();
-        }
-        catch
-        {
-            return StatusCode(500);
         }
     }
 
@@ -122,10 +114,6 @@ public class OrdersController : ControllerBase
             }
             return ValidationProblem();
         }
-        catch
-        {
-            return StatusCode(500);
-        }
     }
 
     /// <summary>
@@ -147,10 +135,6 @@ public class OrdersController : ControllerBase
         {
             ModelState.AddModelError(nameof(Order.Id), ex.Message);
             return ValidationProblem();
-        }
-        catch
-        {
-            return StatusCode(500);
         }
     }
 }

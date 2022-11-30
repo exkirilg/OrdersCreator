@@ -35,7 +35,7 @@ namespace DataAccess.Migrations
 
                     b.Property<string>("Number")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("character varying(25)");
 
                     b.Property<int>("ProviderId")
                         .HasColumnType("integer");
@@ -60,7 +60,7 @@ namespace DataAccess.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("character varying(150)");
 
                     b.Property<int?>("OrderId")
                         .HasColumnType("integer");
@@ -70,7 +70,7 @@ namespace DataAccess.Migrations
 
                     b.Property<string>("Unit")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("character varying(50)");
 
                     b.HasKey("Id");
 
@@ -89,7 +89,8 @@ namespace DataAccess.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)");
 
                     b.HasKey("Id");
 

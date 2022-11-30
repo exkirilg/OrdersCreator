@@ -1,0 +1,112 @@
+﻿@inject HttpClient HttpClient
+
+@if (Show)
+{
+    <div class="modal fade show" style="display:block">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <h4 class="modal-title">Confirm <b>@EntityName</b> deletion</h4>
+                    <button type="button" class="close" @onclick="Cancel" disabled="@_loading">
+                        &times;
+                    </button>
+                </div>
+
+                @if (_loading)
+                {
+                    <div class="d-flex justify-content-center modal-body">
+                        <div class="spinner-border" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <div class="modal-body">
+                        <div class="text-center">
+                            <h5 class="text-danger">Warning!</h5>
+                            <p class="text-danger">
+                                This will permanently delete
+                                <br />
+                                <b>@EntityName</b>
+                                <br />
+                                This action cannot be undone
+                                @if (_systemMessage is not null)
+                                {
+                                    <hr />
+                                    @_systemMessage
+                                }
+                            </p>
+                        </div>
+                    </div>
+                }
+
+                <div class="modal-footer">
+                    <button type="button" class="btn" @onclick="Cancel" disabled="@_loading">
+                        Cancel
+                    </button>
+                    <button type="button" class="btn btn-danger" @onclick="Confirm" disabled="@(_loading || _cannotBeDeleted)">
+                        Delete
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private bool _loading;
+
+    private bool _cannotBeDeleted;
+
+    private string? _systemMessage;
+
+    [Parameter]
+    public bool Show { get; set; }
+
+    [Parameter]
+    public string RequestUri { get; set; } = null!;
+
+    [Parameter]
+    public string EntityName { get; set; } = null!;
+
+    [Parameter]
+    public Action? OnCancel { get; set; }
+
+    [Parameter]
+    public Action? OnComplete { get; set; }
+
+    private void Cancel()
+    {
+        Show = false;
+        _cannotBeDeleted = false;
+        _systemMessage = null;
+        OnCancel?.Invoke();
+    }
+
+    private async Task Confirm()
+    {
+        _loading = true;
+        _systemMessage = null;
+
+        try
+        {
+            var response = await HttpClient.DeleteAsync(RequestUri);
+            response.EnsureSuccessStatusCode();
+
+            Show = false;
+            OnComplete?.Invoke();
+        }
+        catch
+        {
+            _systemMessage = $"{EntityName} cannot be deleted";
+            _cannotBeDeleted = true;
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+}

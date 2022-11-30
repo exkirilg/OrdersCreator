@@ -1,4 +1,6 @@
-﻿@inject HttpClient HttpClient
+﻿@using Microsoft.AspNetCore.Components.Forms
+@using System.ComponentModel.DataAnnotations;
+@inject HttpClient HttpClient
 
 @if (Show)
 {
@@ -6,141 +8,167 @@
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
 
-                @if (_loading)
-                {
+                <EditForm Model="@_order" OnValidSubmit="@SaveChanges">
+
+                    <DataAnnotationsValidator />
+
                     <div class="modal-header">
-                        @if (NewOrder)
+                        @if (Order is null)
                         {
                             <h4 class="modal-title">New Order</h4>
                         }
                         else
                         {
-                            <h4 class="modal-title">Order @Order?.Number</h4>
-                        }
-                    </div>
-
-                    <div class="d-flex justify-content-center modal-body">
-                        <div class="spinner-border" role="status">
-                            <span class="visually-hidden">Loading...</span>
-                        </div>
-                    </div>
-                }
-                else
-                {
-                    <div class="modal-header">
-                        @if (NewOrder)
-                        {
-                            <h4 class="modal-title">New Order</h4>
-                        }
-                        else
-                        {
-                            <h4 class="modal-title">Order @Order?.Number</h4>
+                            <h4 class="modal-title">"@($"Order {Order?.Number} {Order?.Date.ToString()}")"</h4>
                         }
 
-                        <button
-                            type="button"
-                            class="close"
-                            @onclick="Cancel">
+                        <button type="button" class="close" @onclick="Cancel" disabled="@_loading">
                             &times;
                         </button>
                     </div>
 
-                    <div class="modal-body">
-
-                        <div class="vstack gap-2">
-
-                            <!-- Number -->
-                            <div class="form-group row">
-                                <label class="col-sm-2 col-form-label">Number</label>
-                                <div class="col-sm-10">
-                                    <input type="text" class="form-control" @bind="_number">
-                                </div>
+                    @if (_loading)
+                    {
+                        <div class="d-flex justify-content-center modal-body">
+                            <div class="spinner-border" role="status">
+                                <span class="visually-hidden">Loading...</span>
                             </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="modal-body">
 
-                            <!-- Date -->
-                            <div class="form-group row">
-                                <label class="col-sm-2 col-form-label">Date</label>
-                                <div class="col-sm-10">
-                                    <input type="datetime-local" class="form-control" @bind="_date">
+                            <div class="vstack gap-2">
+
+                                <!-- Number -->
+                                <div class="form-group row">
+                                    <label class="col-sm-2 col-form-label">Number</label>
+                                    <div class="col-sm-10">
+                                        <InputText class="form-control" @bind-Value="_order!.Number" />
+                                        <div class="text-center text-danger my-1">
+                                            <small>
+                                                <ValidationMessage For="@(() => _order.Number)" />
+                                            </small>
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
 
-                            <!-- Provider -->
-                            <div class="form-group row">
-                                <label class="col-sm-2 col-form-label">Provider</label>
-                                <div class="col-sm-10">
-                                    <select class="form-select" @bind="_providerId">
-                                        <option value="-1" disabled>Select provider...</option>
-                                        @foreach (var provider in Providers)
-                                        {
-                                            <option value="@provider.Id">@provider.Name</option>
-                                        }
-                                    </select>
+                                <!-- Date -->
+                                <div class="form-group row">
+                                    <label class="col-sm-2 col-form-label">Date</label>
+                                    <div class="col-sm-10">
+                                        <InputDate class="form-control" Type="InputDateType.DateTimeLocal" @bind-Value="_order!.Date" />
+                                        <div class="text-center text-danger my-1">
+                                            <small>
+                                                <ValidationMessage For="@(() => _order.Date)" />
+                                            </small>
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
 
-                            <!-- Items -->
-                            <div class="form-group row">
-                                <table class="table table-striped">
-                                    <thead>
-                                        <tr class="fw-bold text-uppercase">
-                                            <td scope="col">Name</td>
-                                            <td scope="col">Quantity</td>
-                                            <td scope="col">Unit</td>
-                                            <td scope="col" />
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @foreach (var item in _items)
-                                        {
-                                            <tr>
-                                                <td scope="row">
-                                                    <input type="text" class="form-control" @bind="@item.Name">
-                                                </td>
-                                                <td scope="row">
-                                                    <input type="number" class="form-control" @bind="@item.Quantity">
-                                                </td>
-                                                <td scope="row">
-                                                    <input type="text" class="form-control" @bind="@item.Unit">
-                                                </td>
-                                                <td scope="row">
-                                                    <button class="btn btn-danger" @onclick="() => _items.Remove(item)">
-                                                        Delete
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                        }
-                                        <tr>
-                                            <td scope="row" colspan="4">
-                                                <button class="btn btn-success" @onclick="() => _items.Add(new OrderItem())">
-                                                    Add item
+                                <!-- Provider -->
+                                <div class="form-group row">
+                                    <label class="col-sm-2 col-form-label">Provider</label>
+                                    <div class="col-sm-10">
+                                        <InputSelect class="form-select" @bind-Value="ProviderId">
+                                            <option value="0" disabled>Select provider...</option>
+                                            @foreach (var provider in Providers)
+                                            {
+                                                <option value="@provider.Id">@provider.Name</option>
+                                            }
+                                        </InputSelect>
+                                        <div class="text-center text-danger my-1">
+                                            <small>
+                                                <ValidationMessage For="@(() => _order.Provider)" />
+                                            </small>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Items -->
+                                <div class="vstack gap-2 p-2 border rounded">
+
+                                    <div class="row fw-bold text-uppercase text-center">
+                                        <div class="col-3">Name</div>
+                                        <div class="col-3">Quantity</div>
+                                        <div class="col-3">Unit</div>
+                                        <div class="col-3" />
+                                    </div>
+
+                                    @foreach (var item in _order.Items)
+                                    {
+                                        <EditForm EditContext="@_itemsContext[item]" Context="itemContext" class="form-group row">
+                                            <div class="col-3">
+                                                <InputText @bind-Value="item.Name" class="form-control" />
+                                                <div class="text-center text-danger my-1">
+                                                    <small>
+                                                        <ValidationMessage For="@(() => item.Name)" />
+                                                    </small>
+                                                </div>
+                                            </div>
+                                            <div class="col-3">
+                                                <InputNumber @bind-Value="item.Quantity" class="form-control" />
+                                                <div class="text-center text-danger my-1">
+                                                    <small>
+                                                        <ValidationMessage For="@(() => item.Quantity)" />
+                                                    </small>
+                                                </div>
+                                            </div>
+                                            <div class="col-3">
+                                                <InputText @bind-Value="item.Unit" class="form-control" />
+                                                <div class="text-center text-danger my-1">
+                                                    <small>
+                                                        <ValidationMessage For="@(() => item.Unit)" />
+                                                    </small>
+                                                </div>
+                                            </div>
+                                            <div class="col-3">
+                                                <button type="button" class="btn btn-danger" @onclick="() => RemoveItem(item)">
+                                                    Delete
                                                 </button>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
+                                            </div>
+                                        </EditForm>
+                                    }
+
+                                    <div class="row">
+                                        <div class="col-3">
+                                            <button type="button" class="btn btn-success" @onclick="() => AddItem()">
+                                                Add item
+                                            </button>
+                                        </div>
+                                        <div class="col-3" />
+                                        <div class="col-3" />
+                                        <div class="col-3" />
+                                    </div>
+
+                                </div>
+
+                                @if (_systemMessage is not null)
+                                {
+                                    <div class="row">
+                                        <div class="col-12">
+                                            <hr />
+                                            <p class="text-danger">@_systemMessage</p>
+                                        </div>
+                                    </div>
+                                }
+
                             </div>
 
                         </div>
-
-                    </div>
+                    }
 
                     <div class="modal-footer">
-                        <button
-                            type="button"
-                            class="btn"
-                            @onclick="Cancel">
+                        <button type="button" class="btn" @onclick="Cancel" disabled="@_loading">
                             Cancel
                         </button>
-
-                        <button
-                            type="button"
-                            class="btn btn-success"
-                            @onclick="SaveChanges">
+                        <button type="submit" class="btn btn-success" disabled="@_loading">
                             Save
                         </button>
                     </div>
-                }
+
+                </EditForm>
 
             </div>
         </div>
@@ -150,89 +178,164 @@
 @code {
     private bool _loading = false;
 
-    [Parameter]
-    public bool Show { get; set; }
+    private Order? _order;
+
+    private int _providerId = 0;
+
+    private Dictionary<OrderItem, EditContext> _itemsContext = new();
+
+    private string? _systemMessage;
 
     [Parameter]
-    public bool NewOrder { get; set; }
+    public bool Show { get; set; }
 
     [Parameter]
     public Order? Order { get; set; }
 
     [Parameter]
-    public Action? OnCancelOrderEdit { get; set; }
+    public Action? OnCancel { get; set; }
 
     [Parameter]
-    public Action? OnOrderEditComplete { get; set; }
+    public Action? OnComplete { get; set; }
 
     [Parameter]
     public IEnumerable<Provider> Providers { get; set; } = Enumerable.Empty<Provider>();
 
-    private string _number = string.Empty;
-    private DateTime _date = DateTime.UtcNow;
-    private int _providerId = -1;
-    private List<OrderItem> _items = new();
+    private int ProviderId
+    {
+        get => _providerId;
+        set
+        {
+            if (ProviderId == value) return;
+
+            _providerId = value;
+
+            if (_order is not null && value != 0 && _order!.Provider?.Id != value)
+            {
+                _order.Provider = Providers.Where(p => p.Id == _providerId).First();
+            }
+        }
+    }
 
     protected override void OnParametersSet()
     {
-        _number = string.Empty;
-        _date = DateTime.UtcNow;
-        _providerId = -1;
-        _items = new();
-
-        if (Order is not null && NewOrder == false)
+        if (Order is null)
         {
-            _number = Order.Number;
-            _date = Order.Date;
-            _providerId = Order.Provider.Id;
-            _items = Order.Items.ToList();
+            _order = new() { Date = DateTime.UtcNow };
+        }
+        else
+        {
+            _order = Order.Copy();
+            ProviderId = Order.Provider.Id;
+            foreach (var item in _order.Items)
+            {
+                AddItem(item);
+            }
         }
     }
 
     private void Cancel()
     {
-        Show = false;
-        OnCancelOrderEdit?.Invoke();
+        EndEditing();
+        OnCancel?.Invoke();
     }
 
     private async Task SaveChanges()
     {
+        _systemMessage = null;
+
+        if (ItemsAreValid() == false) return;
+
         _loading = true;
 
         try
         {
-            if (NewOrder)
+            if (Order is null)
             {
                 NewOrderRequest request = new NewOrderRequest(
-                    _number, _date, _providerId,
-                    _items.Select(i => new NewOrderRequestItem(i.Name, i.Quantity, i.Unit)));
+                    _order!.Number, _order!.Date, _order!.Provider.Id,
+                    _order!.Items.Select(i => new NewOrderRequestItem(i.Name, i.Quantity, i.Unit)));
                 var result = await HttpClient.PostAsJsonAsync<NewOrderRequest>($"api/Orders", request);
-                if (result.IsSuccessStatusCode)
-                {
-                    Show = false;
-                    OnOrderEditComplete?.Invoke();
-                }
+
+                result.EnsureSuccessStatusCode();
+
+                EndEditing();
+                OnComplete?.Invoke();
             }
             else
             {
                 UpdateOrderRequest request = new UpdateOrderRequest(
-                    Order!.Id, _number, _date, _providerId,
-                    _items.Select(i => new UpdateOrderRequestItem(i.Id, i.Name, i.Quantity, i.Unit)));
+                    _order!.Id, _order!.Number, _order!.Date, _order!.Provider.Id,
+                    _order!.Items.Select(i => new UpdateOrderRequestItem(i.Id, i.Name, i.Quantity, i.Unit)));
                 var result = await HttpClient.PutAsJsonAsync<UpdateOrderRequest>($"api/Orders", request);
-                if (result.IsSuccessStatusCode)
-                {
-                    Show = false;
-                    OnOrderEditComplete?.Invoke();
-                }
+
+                result.EnsureSuccessStatusCode();
+
+                EndEditing();
+                OnComplete?.Invoke();
             }
         }
         catch
         {
-
+            _systemMessage = $"Operation has failed. Please try again later or call administrator";
         }
         finally
         {
             _loading = false;
         }
+    }
+
+    private void EndEditing()
+    {
+        _order = null;
+        _providerId = 0;
+        _itemsContext = new();
+        _systemMessage = null;
+        Show = false;
+        Order = null;
+        Providers = Enumerable.Empty<Provider>();
+    }
+
+    private void AddItem(OrderItem? item = null)
+    {
+        OrderItem newItem;
+        if (item is null)
+        {
+            newItem = new OrderItem();
+            _order!.AddItem(newItem);
+        }
+        else
+        {
+            newItem = item;
+        }
+
+        var editContext = new EditContext(newItem);
+
+        #pragma warning disable CS0618
+        editContext.EnableDataAnnotationsValidation();
+        #pragma warning restore CS0618
+
+        _itemsContext.Add(newItem, editContext);
+    }
+
+    private void RemoveItem(OrderItem item)
+    {
+        _order!.RemoveItem(item.Id);
+        _itemsContext.Remove(item);
+    }
+
+    private bool ItemsAreValid()
+    {
+        var result = true;
+
+        foreach (var context in _itemsContext.Values)
+        {
+            if (context.Validate() == false)
+            {
+                result = false;
+            }
+        }
+
+        return result;
     }
 }

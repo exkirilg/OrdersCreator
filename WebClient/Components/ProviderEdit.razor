@@ -1,4 +1,5 @@
-﻿@inject HttpClient HttpClient
+﻿@using Microsoft.AspNetCore.Components.Forms
+@inject HttpClient HttpClient
 
 @if (Show)
 {
@@ -6,73 +7,63 @@
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
 
-                @if (_loading)
-                {
+                <EditForm Model="@_provider" OnValidSubmit="@SaveChanges">
+
+                    <DataAnnotationsValidator />
+
                     <div class="modal-header">
-                        @if (NewProvider)
+                        @if (Provider is null)
                         {
                             <h4 class="modal-title">New Provider</h4>
                         }
                         else
                         {
-                            <h4 class="modal-title">Provider @Provider?.Name</h4>
-                        }
-                    </div>
-
-                    <div class="d-flex justify-content-center modal-body">
-                        <div class="spinner-border" role="status">
-                            <span class="visually-hidden">Loading...</span>
-                        </div>
-                    </div>
-                }
-                else
-                {
-                    <div class="modal-header">
-                        @if (NewProvider)
-                        {
-                            <h4 class="modal-title">New Provider</h4>
-                        }
-                        else
-                        {
-                            <h4 class="modal-title">Provider @Provider?.Name</h4>
+                            <h4 class="modal-title">Provider @Provider.Name</h4>
                         }
 
-                        <button 
-                            type="button"
-                            class="close"
-                            @onclick="Cancel">
+                        <button type="button" class="close" @onclick="Cancel" disabled="@_loading">
                             &times;
                         </button>
                     </div>
 
-                    <div class="modal-body">
-
-                        <!-- Name -->
-                        <div class="form-group row">
-                            <label class="col-sm-2 col-form-label">Name</label>
-                            <div class="col-sm-10">
-                                <input type="text" class="form-control" @bind="_name">
+                    @if (_loading)
+                    {
+                        <div class="d-flex justify-content-center modal-body">
+                            <div class="spinner-border" role="status">
+                                <span class="visually-hidden">Loading...</span>
                             </div>
                         </div>
+                    }
+                    else
+                    {
+                        <div class="modal-body">
 
-                    </div>
+                            <!-- Name -->
+                            <div class="form-group row">
+                                <label class="col-sm-2 col-form-label">Name</label>
+                                <div class="col-sm-10">
+                                    <InputText class="form-control" @bind-Value="_provider!.Name" />
+                                    <div class="text-center text-danger my-1">
+                                        <small>
+                                            <ValidationMessage For="@(() => _provider.Name)"/>
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    }
 
                     <div class="modal-footer">
-                        <button
-                            type="button"
-                            class="btn"
-                            @onclick="Cancel">
+                        <button type="button" class="btn" @onclick="Cancel" disabled="@_loading">
                             Cancel
                         </button>
-
-                        <button
-                            type="button"
-                            class="btn btn-success"
-                            @onclick="SaveChanges">
+                        <button type="submit" class="btn btn-success" disabled="@_loading">
                             Save
                         </button>
                     </div>
-                }
+
+                </EditForm>
 
             </div>
         </div>
@@ -82,37 +73,36 @@
 @code {
     private bool _loading = false;
 
-    [Parameter]
-    public bool Show { get; set; }
+    private Provider? _provider;
 
     [Parameter]
-    public bool NewProvider { get; set; }
+    public bool Show { get; set; }
 
     [Parameter]
     public Provider? Provider { get; set; }
 
     [Parameter]
-    public Action? OnCancelProviderEdit { get; set; }
+    public Action? OnCancel { get; set; }
 
     [Parameter]
-    public Action? OnProviderEditComplete { get; set; }
-
-    private string _name = string.Empty;
+    public Action? OnComplete { get; set; }
 
     protected override void OnParametersSet()
     {
-        _name = string.Empty;
-
-        if (Provider is not null && NewProvider == false)
+        if (Provider is null)
         {
-            _name = Provider.Name;
+            _provider = new();
+        }
+        else
+        {
+            _provider = Provider.Copy();
         }
     }
 
     private void Cancel()
     {
-        Show = false;
-        OnCancelProviderEdit?.Invoke();
+        EndEditing();
+        OnCancel?.Invoke();
     }
 
     private async Task SaveChanges()
@@ -121,24 +111,24 @@
 
         try
         {
-            if (NewProvider)
+            if (Provider is null)
             {
-                NewProviderRequest request = new NewProviderRequest(_name);
+                NewProviderRequest request = new NewProviderRequest(_provider!.Name);
                 var result = await HttpClient.PostAsJsonAsync<NewProviderRequest>($"api/Providers", request);
                 if (result.IsSuccessStatusCode)
                 {
-                    Show = false;
-                    OnProviderEditComplete?.Invoke();
+                    EndEditing();
+                    OnComplete?.Invoke();
                 }
             }
             else
             {
-                UpdateProviderRequest request = new UpdateProviderRequest(Provider!.Id, _name);
+                UpdateProviderRequest request = new UpdateProviderRequest(_provider!.Id, _provider!.Name);
                 var result = await HttpClient.PutAsJsonAsync<UpdateProviderRequest>($"api/Providers", request);
                 if (result.IsSuccessStatusCode)
                 {
-                    Show = false;
-                    OnProviderEditComplete?.Invoke();
+                    EndEditing();
+                    OnComplete?.Invoke();
                 }
             }
         }
@@ -150,5 +140,12 @@
         {
             _loading = false;
         }
+    }
+
+    private void EndEditing()
+    {
+        _provider = null;
+        Show = false;
+        Provider = null;
     }
 }
