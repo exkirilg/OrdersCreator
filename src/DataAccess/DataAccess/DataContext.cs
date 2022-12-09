@@ -3,10 +3,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DataAccess;
 
-public class DataContext : DbContext
+public abstract class DataContext<T> : DbContext, IDataContext
+    where T : DbContext
 {
     public DataContext(
-        DbContextOptions<DataContext> options) : base(options)
+        DbContextOptions<T> options) : base(options)
     {
 
     }

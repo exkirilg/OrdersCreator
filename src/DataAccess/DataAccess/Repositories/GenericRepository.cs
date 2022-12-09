@@ -6,12 +6,14 @@ using System.Linq.Expressions;
 
 namespace DataAccess.Repositories;
 
-public abstract class GenericRepository<TEntity> : IGenericRepository<TEntity> where TEntity : Entity
+public abstract class GenericRepository<TEntity, TDataContext> : IGenericRepository<TEntity>
+    where TEntity : Entity
+    where TDataContext : DbContext, IDataContext
 {
-    protected readonly DataContext _context;
+    protected readonly TDataContext _context;
     protected readonly DbSet<TEntity> _dbSet;
 
-    public GenericRepository(DataContext context)
+    public GenericRepository(TDataContext context)
     {
         _context = context;
         _dbSet = context.Set<TEntity>();

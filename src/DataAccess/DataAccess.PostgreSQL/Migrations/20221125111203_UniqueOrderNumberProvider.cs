@@ -2,7 +2,7 @@
 
 #nullable disable
 
-namespace DataAccess.Migrations
+namespace DataAccess.PostgreSQL.Migrations
 {
     /// <inheritdoc />
     public partial class UniqueOrderNumberProvider : Migration

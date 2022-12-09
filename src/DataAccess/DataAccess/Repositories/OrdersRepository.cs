@@ -5,9 +5,10 @@ using System.Linq.Expressions;
 
 namespace DataAccess.Repositories;
 
-public class OrdersRepository : GenericRepository<Order>, IOrdersRepository
+public class OrdersRepository<TDataContext> : GenericRepository<Order, TDataContext>, IOrdersRepository
+    where TDataContext : DbContext, IDataContext
 {
-    public OrdersRepository(DataContext context) : base(context)
+    public OrdersRepository(TDataContext context) : base(context)
     {
     }
 

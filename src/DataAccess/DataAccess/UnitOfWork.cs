@@ -1,11 +1,12 @@
 ﻿using DataAccess.Repositories;
 using Domain.DataAccessInterfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace DataAccess;
 
-public class UnitOfWork : IUnitOfWork
+public class UnitOfWork<TDataContext> : IUnitOfWork where TDataContext : DbContext, IDataContext
 {
-    private readonly DataContext _context;
+    private readonly TDataContext _context;
 
     private bool _disposed = false;
 
@@ -16,10 +17,7 @@ public class UnitOfWork : IUnitOfWork
     {
         get
         {
-            if (_ordersRepository is null)
-            {
-                _ordersRepository = new OrdersRepository(_context);
-            }
+            _ordersRepository ??= new OrdersRepository<TDataContext>(_context);
             return _ordersRepository;
         }
     }
@@ -28,15 +26,12 @@ public class UnitOfWork : IUnitOfWork
     {
         get
         {
-            if (_providersRepository is null)
-            {
-                _providersRepository = new ProvidersRepository(_context);
-            }
+            _providersRepository ??= new ProvidersRepository<TDataContext>(_context);
             return _providersRepository;
         }
     }
 
-    public UnitOfWork(DataContext context)
+    public UnitOfWork(TDataContext context)
     {
         _context = context;
     }
