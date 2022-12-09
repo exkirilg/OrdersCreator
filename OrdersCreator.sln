@@ -1,4 +1,4 @@
-Microsoft Visual Studio Solution File, Format Version 12.00
+﻿Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
@@ -8,11 +8,17 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{D76EFE78
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Domain", "src\Domain\Domain.csproj", "{732E3C5A-AB06-4116-AE82-11B41F42CF6F}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataAccess", "src\DataAccess\DataAccess.csproj", "{53AD2C4B-F833-4EEE-B7F1-D6118CC05E8E}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Server", "src\Server\Server.csproj", "{17A3F9E6-01D8-4C43-AF08-0B35C947DBC1}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebClient", "src\WebClient\WebClient.csproj", "{00B78C76-A39F-4486-98C8-F58A7688131D}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DataAccess", "DataAccess", "{DC4B1ED5-04DF-43C6-BD43-CF1068D3EC5E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataAccess.SQLite", "src\DataAccess\DataAccess.SQLite\DataAccess.SQLite.csproj", "{76A79133-BED5-4A8E-A2E4-21FF209F6872}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataAccess.PostgreSQL", "src\DataAccess\DataAccess.PostgreSQL\DataAccess.PostgreSQL.csproj", "{53AD2C4B-F833-4EEE-B7F1-D6118CC05E8E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataAccess", "src\DataAccess\DataAccess\DataAccess.csproj", "{51DD6798-7012-4F29-ACC2-FD2A3033F908}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -36,15 +42,26 @@ Global
 		{00B78C76-A39F-4486-98C8-F58A7688131D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{00B78C76-A39F-4486-98C8-F58A7688131D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{00B78C76-A39F-4486-98C8-F58A7688131D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{76A79133-BED5-4A8E-A2E4-21FF209F6872}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{76A79133-BED5-4A8E-A2E4-21FF209F6872}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{76A79133-BED5-4A8E-A2E4-21FF209F6872}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{76A79133-BED5-4A8E-A2E4-21FF209F6872}.Release|Any CPU.Build.0 = Release|Any CPU
+		{51DD6798-7012-4F29-ACC2-FD2A3033F908}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{51DD6798-7012-4F29-ACC2-FD2A3033F908}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{51DD6798-7012-4F29-ACC2-FD2A3033F908}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{51DD6798-7012-4F29-ACC2-FD2A3033F908}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{732E3C5A-AB06-4116-AE82-11B41F42CF6F} = {836BB3B1-DD25-45AA-8DFB-0047CBE51342}
-		{53AD2C4B-F833-4EEE-B7F1-D6118CC05E8E} = {836BB3B1-DD25-45AA-8DFB-0047CBE51342}
+		{53AD2C4B-F833-4EEE-B7F1-D6118CC05E8E} = {DC4B1ED5-04DF-43C6-BD43-CF1068D3EC5E}
 		{17A3F9E6-01D8-4C43-AF08-0B35C947DBC1} = {836BB3B1-DD25-45AA-8DFB-0047CBE51342}
 		{00B78C76-A39F-4486-98C8-F58A7688131D} = {836BB3B1-DD25-45AA-8DFB-0047CBE51342}
+		{DC4B1ED5-04DF-43C6-BD43-CF1068D3EC5E} = {836BB3B1-DD25-45AA-8DFB-0047CBE51342}
+		{76A79133-BED5-4A8E-A2E4-21FF209F6872} = {DC4B1ED5-04DF-43C6-BD43-CF1068D3EC5E}
+		{51DD6798-7012-4F29-ACC2-FD2A3033F908} = {DC4B1ED5-04DF-43C6-BD43-CF1068D3EC5E}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {1C93D1D2-613E-4DEE-AE05-16380E1BFAB2}

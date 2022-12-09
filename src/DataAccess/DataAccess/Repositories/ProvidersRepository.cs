@@ -4,9 +4,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DataAccess.Repositories;
 
-public class ProvidersRepository : GenericRepository<Provider>, IProvidersRepository
+public class ProvidersRepository<TDataContext> : GenericRepository<Provider, TDataContext>, IProvidersRepository
+    where TDataContext : DbContext, IDataContext
 {
-    public ProvidersRepository(DataContext context) : base(context)
+    public ProvidersRepository(TDataContext context) : base(context)
     {
     }
 

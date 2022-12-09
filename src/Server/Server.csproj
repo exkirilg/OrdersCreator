@@ -10,6 +10,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="7.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="7.0.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="7.0.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -19,8 +20,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\DataAccess\DataAccess.csproj" />
-    <ProjectReference Include="..\WebClient\WebClient.csproj" />
+	<ProjectReference Include="..\DataAccess\DataAccess\DataAccess.csproj" />
+    <ProjectReference Include="..\DataAccess\DataAccess.PostgreSQL\DataAccess.PostgreSQL.csproj" />
+    <ProjectReference Include="..\DataAccess\DataAccess.SQLite\DataAccess.SQLite.csproj" />
   </ItemGroup>
 
 </Project>

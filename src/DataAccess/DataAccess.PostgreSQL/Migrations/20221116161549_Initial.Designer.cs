@@ -3,17 +3,20 @@ using System;
 using DataAccess;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace DataAccess.Migrations
+namespace DataAccess.PostgreSQL.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20221116161549_Initial")]
+    partial class Initial
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -35,7 +38,7 @@ namespace DataAccess.Migrations
 
                     b.Property<string>("Number")
                         .IsRequired()
-                        .HasColumnType("character varying(25)");
+                        .HasColumnType("text");
 
                     b.Property<int>("ProviderId")
                         .HasColumnType("integer");
@@ -43,9 +46,6 @@ namespace DataAccess.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("ProviderId");
-
-                    b.HasIndex("Number", "ProviderId")
-                        .IsUnique();
 
                     b.ToTable("Orders");
                 });
@@ -60,7 +60,7 @@ namespace DataAccess.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("character varying(150)");
+                        .HasColumnType("text");
 
                     b.Property<int?>("OrderId")
                         .HasColumnType("integer");
@@ -70,7 +70,7 @@ namespace DataAccess.Migrations
 
                     b.Property<string>("Unit")
                         .IsRequired()
-                        .HasColumnType("character varying(50)");
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
@@ -89,8 +89,7 @@ namespace DataAccess.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(150)
-                        .HasColumnType("character varying(150)");
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 

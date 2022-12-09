@@ -1,8 +1,6 @@
-using DataAccess;
-using Domain.DataAccessInterfaces;
 using Domain.Services;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
+using Server;
 using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -31,12 +29,8 @@ builder.Services.AddSwaggerGen(options =>
         $"{Assembly.GetExecutingAssembly().GetName().Name}.xml"));
 });
 
-builder.Services.AddDbContext<DataContext>(options =>
-{
-    options.UseNpgsql(builder.Configuration.GetConnectionString("OrdersCreator"));
-});
-
-builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+DataAccessInitializer dataAccessInitializer = new(builder.Configuration);
+dataAccessInitializer.ConfigureDataAccessServices(builder.Services);
 
 builder.Services.AddScoped<ProvidersServices>();
 builder.Services.AddScoped<OrdersServices>();
@@ -56,5 +50,7 @@ app.UseStaticFiles();
 
 app.MapControllers();
 app.MapFallbackToFile("index.html");
+
+await dataAccessInitializer.EnsureDatabaseCreatedNoPendingMigrations(app.Services);
 
 app.Run();
