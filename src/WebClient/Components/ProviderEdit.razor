@@ -1,0 +1,152 @@
+﻿@using Domain.DTO.Requests;
+@using Microsoft.AspNetCore.Components.Forms
+@inject HttpClient HttpClient
+
+@if (Show)
+{
+    <div class="modal show" style="display:block">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+
+                <EditForm Model="@_provider" OnValidSubmit="@SaveChanges">
+
+                    <DataAnnotationsValidator />
+
+                    <div class="modal-header">
+                        @if (Provider is null)
+                        {
+                            <h4 class="modal-title">New Provider</h4>
+                        }
+                        else
+                        {
+                            <h4 class="modal-title">Provider @Provider.Name</h4>
+                        }
+
+                        <button type="button" class="close" @onclick="Cancel" disabled="@_loading">
+                            &times;
+                        </button>
+                    </div>
+
+                    @if (_loading)
+                    {
+                        <div class="d-flex justify-content-center modal-body">
+                            <div class="spinner-border" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="modal-body">
+
+                            <!-- Name -->
+                            <div class="form-group row">
+                                <label class="col-sm-2 col-form-label">Name</label>
+                                <div class="col-sm-10">
+                                    <InputText class="form-control" @bind-Value="_provider!.Name" />
+                                    <div class="text-center text-danger my-1">
+                                        <small>
+                                            <ValidationMessage For="@(() => _provider.Name)"/>
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    }
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn" @onclick="Cancel" disabled="@_loading">
+                            Cancel
+                        </button>
+                        <button type="submit" class="btn btn-success" disabled="@_loading">
+                            Save
+                        </button>
+                    </div>
+
+                </EditForm>
+
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private bool _loading = false;
+
+    private Provider? _provider;
+
+    [Parameter]
+    public bool Show { get; set; }
+
+    [Parameter]
+    public Provider? Provider { get; set; }
+
+    [Parameter]
+    public Action? OnCancel { get; set; }
+
+    [Parameter]
+    public Action? OnComplete { get; set; }
+
+    protected override void OnParametersSet()
+    {
+        if (Provider is null)
+        {
+            _provider = new();
+        }
+        else
+        {
+            _provider = Provider.Copy();
+        }
+    }
+
+    private void Cancel()
+    {
+        EndEditing();
+        OnCancel?.Invoke();
+    }
+
+    private async Task SaveChanges()
+    {
+        _loading = true;
+
+        try
+        {
+            if (Provider is null)
+            {
+                NewProviderRequest request = new NewProviderRequest(_provider!.Name);
+                var result = await HttpClient.PostAsJsonAsync<NewProviderRequest>($"api/Providers", request);
+                if (result.IsSuccessStatusCode)
+                {
+                    EndEditing();
+                    OnComplete?.Invoke();
+                }
+            }
+            else
+            {
+                UpdateProviderRequest request = new UpdateProviderRequest(_provider!.Id, _provider!.Name);
+                var result = await HttpClient.PutAsJsonAsync<UpdateProviderRequest>($"api/Providers", request);
+                if (result.IsSuccessStatusCode)
+                {
+                    EndEditing();
+                    OnComplete?.Invoke();
+                }
+            }
+        }
+        catch
+        {
+
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+
+    private void EndEditing()
+    {
+        _provider = null;
+        Show = false;
+        Provider = null;
+    }
+}
